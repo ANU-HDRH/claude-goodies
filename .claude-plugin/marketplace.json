@@ -1,0 +1,23 @@
+{
+  "name": "claude-goodies",
+  "owner": {
+    "name": "ANU HDRH",
+    "url": "https://github.com/ANU-HDRH"
+  },
+  "metadata": {
+    "description": "Internal Claude Code marketplace for the ANU HDRH / RSE team — skills and frameworks for shared use.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "d2-diagrams",
+      "source": "./plugins/d2-diagrams",
+      "description": "Author, iterate on, and render diagrams using D2 as the source of truth."
+    },
+    {
+      "name": "bower",
+      "source": { "source": "github", "repo": "ANU-HDRH/bower-framework", "ref": "plugin-marketplace" },
+      "description": "Bower spec-driven development (SDD) framework."
+    }
+  ]
+}

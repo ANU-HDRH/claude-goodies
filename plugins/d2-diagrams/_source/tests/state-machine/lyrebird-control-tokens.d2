@@ -1,0 +1,77 @@
+# @purpose:      How do control tokens drive a participant chat session — what
+#                states does a conversation move through, and which tokens cause
+#                which transitions?
+# @audience:     Engineers onboarding to Lyrebird / implementing the interview
+#                engine (mid-level; technical literacy assumed).
+# @out-of-scope: prompt-design specifics; DB/turns schema; SSE/streaming
+#                transport mechanics; the test harness; eval-mode annotation;
+#                form-registry authoring. Only the runtime conversation state
+#                machine and the control tokens that drive it.
+# @tier:         governed
+# @source:       lyrebird/docs/adr/0011-control-code-taxonomy-and-structured-turns.md
+#                + lyrebird/docs/adr/0014-framing-codes-participant-visible.md
+#                (anchored at the lyrebird repo root; this d2diag tree is not a
+#                 git repo and shares no root with the lyrebird repo. Absolute:
+#                 /home/lingomat/hubproj/lyrebird/docs/adr/)
+
+...@../../references/style
+...@../../references/state-machine
+
+direction: down
+
+start: "" { class: start }
+
+# --- The active conversation: every state here can be left by withdrawal. ----
+session: Active conversation session { class: composite
+  ci: "" { class: start }
+
+  awaiting: Awaiting participant message { class: state }
+
+  # A bot turn: the dispatcher demultiplexes the stream live. Framing
+  # (participant-visible) and prose are rendered concurrently within the turn;
+  # control tokens are stripped and acted on at end-of-turn.
+  bot_turn: Bot turn — streaming { class: composite
+    bt_in: "" { class: start }
+    framing: "[FRAMING]...[/FRAMING]\n→ framing UI region (visible)" { class: state }
+    prose: prose deltas\n→ response box (visible) { class: state }
+    eot: end-of-turn\n(act on control tokens) { class: choice }
+    bt_in -> framing: "[FRAMING] open"
+    bt_in -> prose: prose delta
+    framing -> prose: "[/FRAMING]"
+    framing -> eot
+    prose -> eot
+  }
+
+  awaiting -> bot_turn: participant submits
+
+  ci -> awaiting
+}
+
+# --- Structured invocation: pause for a registered form, then resume. --------
+form: Awaiting form submission\n(one-shot per session) { class: state }
+
+# --- Terminal states ---------------------------------------------------------
+completed: COMPLETED\n(last topic done) { class: final }
+exit: Distress EXIT { class: final }
+withdrawn: WITHDRAWN\n(hard deletion) { class: final }
+
+start -> session
+
+# Transition codes fire at end-of-turn, demultiplexed from the visible stream.
+session.bot_turn.eot -> session.awaiting: "[TOPIC_COMPLETE]\n(more topics) / advance topic"
+session.bot_turn.eot -> session.awaiting: prose-only / continue subtopic
+session.bot_turn.eot -> completed: "[TOPIC_COMPLETE]\n(last topic)"
+session.bot_turn.eot -> exit: "[EXIT_INTERVIEW] / supportive message"
+
+# Invocation code pauses the conversation; on submit it resumes.
+session.bot_turn.eot -> form: "[STRUCTURED_<id>] / pause for form"
+form -> session.awaiting: form submitted / resume
+
+# Consent withdrawal can fire from ANY active state — drawn once from the
+# composite rather than from every inner state (see caption).
+session -> withdrawn: withdraw consent (during-session button)
+
+legend: "Withdrawal can fire from ANY active state; the single edge from the\nsession region stands for all of them, elided to avoid a hairball.\nControl tokens: [TOPIC_COMPLETE]/[EXIT_INTERVIEW] = transition codes (stripped),\n[STRUCTURED_<id>] = invocation code (stripped), [FRAMING] = participant-visible." {
+  class: caption
+  near: bottom-center
+}

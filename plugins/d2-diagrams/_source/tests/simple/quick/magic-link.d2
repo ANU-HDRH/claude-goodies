@@ -1,0 +1,18 @@
+# magic-link login — quick internal sketch. Styled, but casual: house style on,
+# only the obvious nodes classed (the rest fall back to plain), no governance.
+...@../../../references/style
+
+user: User           { class: actor }
+app:  Web App        { class: svc }
+api:  Auth API       { class: svc }
+mail: Email                            # left unclassed — falls back to plain box
+db:   Token Store    { class: store }
+
+user -> app: enter email
+app -> api: request link
+api -> db: store token
+api -> mail: send link
+user -> app: click link
+app -> api: verify token
+api -> db: check + consume
+api -> app: issue session

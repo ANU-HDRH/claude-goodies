@@ -1,0 +1,9 @@
+{
+  "name": "d2-diagrams",
+  "version": "1.0.0",
+  "description": "Author, iterate on, and render diagrams using D2 as the semantic source of truth, shipping a polished SVG as the deliverable.",
+  "author": {
+    "name": "ANU HDRH",
+    "url": "https://github.com/ANU-HDRH"
+  }
+}

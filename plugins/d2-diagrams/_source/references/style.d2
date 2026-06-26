@@ -1,0 +1,76 @@
+# House style — shared D2 classes + config.
+#
+# This file IS the house style. A diagram applies it by spreading it in at the
+# top with `...@style` (adjust the relative path) and then tagging objects with
+# the classes below, e.g. `api: API Gateway { class: svc }`.
+#
+# It is a starting point, not scripture: extend the palette and add classes as
+# real diagrams demand. Keep changes here so every diagram moves together.
+
+vars: {
+  d2-config: {
+    # Neutral base theme; the classes below carry the actual house palette so
+    # the look does not depend on which built-in theme is active.
+    theme-id: 0
+    pad: 40
+    # sketch: true  # uncomment for the hand-drawn look on informal diagrams
+  }
+}
+
+classes: {
+  # --- compute / behaviour -------------------------------------------------
+  svc: {
+    # A service, process, or running component. The default box.
+    style: { fill: "#eef2ff"; stroke: "#4f46e5"; stroke-width: 2; font-color: "#312e81"; border-radius: 8 }
+  }
+  actor: {
+    # A human or external role that initiates something.
+    shape: person
+    style: { fill: "#f1f5f9"; stroke: "#475569"; stroke-width: 2; font-color: "#1e293b" }
+  }
+  decision: {
+    # A branch point in a flow.
+    shape: diamond
+    style: { fill: "#fff1f2"; stroke: "#e11d48"; stroke-width: 2; font-color: "#881337" }
+  }
+
+  # --- state / data --------------------------------------------------------
+  store: {
+    # A database or persistent datastore.
+    shape: cylinder
+    style: { fill: "#fffbeb"; stroke: "#d97706"; stroke-width: 2; font-color: "#78350f" }
+  }
+  queue: {
+    # A queue, stream, or buffer.
+    shape: queue
+    style: { fill: "#ecfdf5"; stroke: "#059669"; stroke-width: 2; font-color: "#064e3b" }
+  }
+
+  # --- boundaries ----------------------------------------------------------
+  external: {
+    # A third-party or out-of-our-control system. Dashed to read as "not ours".
+    style: { fill: "#f8fafc"; stroke: "#64748b"; stroke-width: 2; stroke-dash: 4; font-color: "#334155" }
+  }
+  group: {
+    # A logical grouping / boundary container.
+    style: { fill: "#fafafa"; stroke: "#cbd5e1"; stroke-width: 1; font-color: "#475569" }
+  }
+  caption: {
+    # An on-canvas note / legend / convention statement. Attach with `near`.
+    # Use a PLAIN quoted label with your own \n line breaks — NOT a |md| block:
+    #   legend: "platform + auth are the foundation; those edges are elided.\nDashed edges are async or out-of-band." { class: caption; near: bottom-center }
+    # CAVEAT (d2 v0.7.1): `width` is ignored and auto-wrap is unreliable. A long
+    # single-line |md| caption clips off the canvas edge; a multi-paragraph |md|
+    # block silently renders only its FIRST paragraph. A plain string with your
+    # own \n breaks renders every line and does not clip — so wrap it yourself.
+    # One caption per diagram.
+    style: { fill: "#f8fafc"; stroke: "#e2e8f0"; stroke-width: 1; font-size: 14; font-color: "#64748b" }
+  }
+
+  # --- connections ---------------------------------------------------------
+  weak: {
+    # A dependency or optional/async edge, set on a connection:
+    #   api -> cache: lookup { class: weak }
+    style: { stroke: "#94a3b8"; stroke-dash: 4 }
+  }
+}

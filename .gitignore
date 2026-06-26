@@ -1,0 +1,8 @@
+# Session/local settings
+.claude/settings.local.json
+
+# Build output (the shipped skill is committed; the staging dir is not)
+plugins/*/_source/dist/
+
+# OS / editor cruft
+.DS_Store
