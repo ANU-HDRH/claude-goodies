@@ -23,9 +23,15 @@ first** — don't jump to a crafted SVG, and don't convert tools. Each renderer 
 native styling; drive it from the shared house palette (`build-style.py` emits a
 palette for every tool from the one `tokens.json`, so all three stay in sync):
 
-- **Mermaid** → `classDef` + `class n cat1` (paste the generated `palette.mmd`;
-  Mermaid has no import), optional `%%{init: {...}}%%` theme. Layout is dagre/ELK.
-  **Render with an explicit solid background** — `mmdc -b white` — because `mmdc`
+- **Mermaid** → `classDef` + `class n cat1`. Mermaid has no import, so apply the house
+  palette one of two ways: **(a)** paste the generated `palette.mmd` `classDef` block into
+  the `.mmd` (self-contained, renders anywhere including GitHub inline), or **(b)** keep the
+  `.mmd` colour-free and pass the generated stylesheet at render time —
+  `mmdc -C <skill>/references/palette.css` — where the nodes only carry `class n cat1`
+  (subgraphs `class s frame` / `frame-cat1`) and `palette.css` supplies the look. Both come
+  from the one `tokens.json`; (a) is the default because it needs no external file at view
+  time, (b) keeps colour fully out of the source. **Render with an explicit solid
+  background** — `mmdc -b white` — because `mmdc`
   defaults to a *transparent* SVG background, which shows through as blank/checkered
   wherever the viewer's own background isn't white and reads as "half the image is
   missing". (D2 and PlantUML paint a solid page by default; Mermaid does not.)
@@ -253,10 +259,14 @@ domains onto generic category slots**.
   fill = TOK["categories"][CAT[dom]]["fill"]
   ```
 
-- **`references/palette.d2`** — generated from `tokens.json` by `build-style.py`,
-  for D2-native renders: `...@palette` then tag nodes `{ class: cat1 }` (map
-  domains to slots). Re-run `build-style.py` after editing tokens so the two
-  sides never drift.
+- **`references/palette.{d2,mmd,css,puml,c4.puml}`** — one palette per format,
+  all generated from `tokens.json` by `build-style.py`, so every native render pulls
+  the same colours. D2: `...@palette` + `{ class: cat1 }`. Mermaid: paste
+  `palette.mmd`'s `classDef`s, **or** keep the `.mmd` colour-free and render with
+  `mmdc -C palette.css` (nodes carry only `class n cat1`; `palette.css` supplies the
+  look, incl. `frame` / `frame-catN` for subgraphs). PlantUML: `!include palette.puml`
+  + `<<cat1>>`, or C4-PlantUML `palette.c4.puml` + `$tags="cat1"`. Re-run
+  `build-style.py` after editing tokens so no side drifts.
 
 (This is separate from `style.d2`'s role classes — `svc`/`actor`/`store`/… —
 which stay for role-typed diagrams; `palette.d2` is the colour-by-arbitrary-domain

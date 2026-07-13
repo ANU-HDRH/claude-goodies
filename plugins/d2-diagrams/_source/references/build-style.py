@@ -8,6 +8,8 @@ everything — the "improve the source in its own format" step draws from here:
 
   * palette.d2   — D2 classes:      `...@palette`  then  `{ class: cat1 }`
   * palette.mmd  — Mermaid classDef: paste in,      then `class node cat1`  (or `:::cat1`)
+  * palette.css  — Mermaid EXTERNAL stylesheet: `mmdc -C palette.css` (no classDef pasted;
+                   the .mmd just tags nodes `class node cat1` and carries zero colour)
   * palette.puml — PlantUML <style>: `!include palette.puml`, then `<<cat1>>`
 
 SVG generators instead load tokens.json directly. Re-run this after editing
@@ -52,6 +54,28 @@ for n, c in cats.items():
 mmd.append(f"classDef external fill:{ext['fill']},stroke:{ext['stroke']},color:{ext['text']},stroke-dasharray:4 3;")
 write("palette.mmd", "\n".join(mmd) + "\n")
 
+# ---- Mermaid external stylesheet (mmdc -C palette.css; no classDef pasted into the .mmd) ----
+neu = tok["neutral"]
+css = ["/* GENERATED from tokens.json by build-style.py — do not hand-edit. */",
+       "/* Mermaid: render with `mmdc -C palette.css` and tag nodes `class <id> cat1` (or `:::cat1`);",
+       "   the .mmd then carries NO colour. Subgraphs: `class <id> frame` (neutral) or `frame-cat1` (tinted). */"]
+def css_node(sel, c, dash=False):
+    # descendant (not child `>`) selector: mermaid nests the shape element at
+    # different depths per shape (stadium/pill vs rect vs cylinder), so `>` misses some.
+    d = "; stroke-dasharray:4 3 !important" if dash else ""
+    return (f".{sel} rect, .{sel} polygon, .{sel} path "
+            f"{{ fill:{c['fill']} !important; stroke:{c['stroke']} !important{d}; }}\n"
+            f".{sel} .nodeLabel, .{sel} span, .{sel} p {{ color:{c['text']} !important; }}")
+for n, c in cats.items():
+    css.append(css_node(n, c))
+css.append(css_node("external", ext, dash=True))
+css.append(f".cluster.frame rect {{ fill:{neu['faint']} !important; stroke:{neu['border']} !important; "
+           f"stroke-dasharray:6 4 !important; }}")
+for n, c in cats.items():
+    css.append(f".cluster.frame-{n} rect {{ fill:{c['tint']} !important; stroke:{c['stroke']} !important; "
+               f"stroke-dasharray:6 4 !important; }}")
+write("palette.css", "\n".join(css) + "\n")
+
 # ---- PlantUML (plain: <style> by stereotype) ----
 pu = ["' GENERATED from tokens.json by build-style.py — do not hand-edit.",
       "' !include this file, then tag elements with the matching stereotype: rectangle \"X\" <<cat1>>",
@@ -71,4 +95,4 @@ for n, c in cats.items():
 c4.append(f'AddElementTag("external", $bgColor="{ext["fill"]}", $fontColor="{ext["text"]}", $borderColor="{ext["stroke"]}")')
 write("palette.c4.puml", "\n".join(c4) + "\n")
 
-print(f"generated 4 palettes (d2, mmd, puml, c4) from tokens.json ({len(cats)} categories)")
+print(f"generated 5 palettes (d2, mmd, css, puml, c4) from tokens.json ({len(cats)} categories)")

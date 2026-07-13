@@ -125,12 +125,14 @@ diagram invents its own colours:
 - **`tokens.json`** — the single source of truth: generic category slots
   `cat1..catN`, an `external` style, and `neutral` (text, edges, surfaces,
   borders). It lives here in the skill, shared by every diagram in the repo.
-- **`palette.d2` / `palette.mmd` / `palette.puml` / `palette.c4.puml`** — all
-  generated from it by **`build-style.py`** (one palette per renderer, so every
+- **`palette.d2` / `palette.mmd` / `palette.css` / `palette.puml` / `palette.c4.puml`**
+  — all generated from it by **`build-style.py`** (one palette per renderer, so every
   tool stays in sync). D2: `...@palette` + `{ class: cat1 }` (`-store` for a
-  datastore). Mermaid: paste `palette.mmd`'s `classDef`s + `class n cat1`.
-  PlantUML: `!include palette.puml` + `<<cat1>>`; or, for the box+person-icon
-  form, C4-PlantUML `!include palette.c4.puml` + `$tags="cat1"`.
+  datastore). Mermaid: paste `palette.mmd`'s `classDef`s + `class n cat1`, **or** keep
+  the `.mmd` colour-free and render with `mmdc -C palette.css` (nodes just carry
+  `class n cat1`; subgraphs `frame` / `frame-catN`). PlantUML: `!include palette.puml`
+  + `<<cat1>>`; or, for the box+person-icon form, C4-PlantUML `!include palette.c4.puml`
+  + `$tags="cat1"`.
 - **SVG generators** (`presentation.py`) load `tokens.json` directly and use only
   its values — **never a hex literal in the `.py`**, and never in the `.d2`
   either (the semantic source carries no styling). A generator's one styling line
