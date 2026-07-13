@@ -57,7 +57,18 @@ matter:
   SVG. So a rasterizer is effectively required; treat its absence as a blocker
   for the presentation path (not a hard stop only if every diagram you will make
   is simple enough to ship as a raw D2 render). The standard choice is
-  `rsvg-convert` (lowest-friction install); `cairosvg` is the no-sudo fallback.
+  `rsvg-convert` (lowest-friction install); `cairosvg` is the no-sudo fallback —
+  but note `cairosvg` needs the native **`libcairo`** library, not just the
+  Python package: a bare `pip install cairosvg` still fails at runtime with
+  `OSError: no library called "cairo-2" was found` until `libcairo` is installed
+  (`brew install cairo`, `apt install libcairo2`). **Zero-install fallback:** if
+  `d2` has ever exported a PNG on this machine it has downloaded a headless
+  Chromium under its Playwright cache
+  (`~/Library/Caches/ms-playwright/chromium_headless_shell-*/chrome-*/headless_shell`,
+  or `~/.cache/ms-playwright/...` on Linux); that binary rasterizes *any* SVG —
+  `headless_shell --headless --disable-gpu --force-device-scale-factor=2 --screenshot=/tmp/look.png --window-size=W,H "file://$PWD/crafted.svg"` —
+  so you can eyeball crafted SVGs with nothing new installed. Probe for it before
+  asking the user to install anything.
 - **`uv`** (`command -v uv`) — recommended, not a hard stop. When a presentation
   render is produced by a generator script (`presentation.py`, see Step 5),
   `uv run presentation.py` pins the Python interpreter so it behaves identically
@@ -77,8 +88,10 @@ consolidated message listing exactly what they need:
 > - **`rsvg-convert`** (to rasterize crafted presentation SVGs for review) —
 >   `sudo apt install librsvg2-bin` on Debian/Ubuntu/WSL, `brew install librsvg`
 >   on macOS. Lowest-friction option; `resvg` or Inkscape also work if you have
->   them. No-sudo fallback: `pip install --user cairosvg` (needs libcairo, which
->   is usually already present).
+>   them. No-sudo fallback: `pip install --user cairosvg` **plus** the native
+>   `libcairo` it binds to (`brew install cairo` / `apt install libcairo2`) — the
+>   pip package alone is not enough. Or skip installs entirely if `d2` has
+>   already fetched a headless Chromium (see the zero-install fallback above).
 >
 > Then restart your shell (or open a new terminal) so the binaries are picked
 > up, and re-run.
@@ -454,6 +467,31 @@ Rules that keep this honest:
   regenerate it in the same step that emits the SVG so the two never diverge.
   Don't try to stamp PNGs; their freshness rides on the SVG's.
 
+### Naming the two renders — by source format, when you keep both
+
+The format-first workflow (see `references/presentation-render.md`) routinely
+produces **two** rendered outputs for one source: the *format-improved native
+render* (the tool draws it — `d2`, `plantuml`, `mmdc`) and the *presentation
+render* (a crafted SVG, usually from a `.py` generator). When you keep both,
+role-names (`presentation.svg`) don't distinguish them — name by the source's
+own format suffix so each file's provenance is obvious at a glance:
+
+```
+<name>.<fmt>              # semantic source           (architecture.d2, model.puml, model.mmd)
+<name>.improved.<fmt>.svg # format-improved NATIVE render (rendered by the tool itself)
+<name>.py                 # presentation generator     (only if one was used)
+<name>.py.svg             # presentation render        (the crafted SVG the generator emits)
+```
+
+So a D2 unit is `architecture.d2` → `architecture.improved.d2.svg` (native) +
+`architecture.py` → `architecture.py.svg` (presentation); a PlantUML unit is
+`model.puml` → `model.improved.puml.svg` + `model.puml.py` → `model.puml.py.svg`.
+The generator writes `<name>.py.svg` and **must never overwrite the source's own
+`<name>.svg`** or the native `<name>.improved.<fmt>.svg` — three distinct files, three
+distinct roles. Both SVGs get stamped with `freshness.py`; the native render's
+manifest is just its source + shared style, the presentation's also includes the
+generator. This is the on-disk form of "ship both and let the reader choose."
+
 ### Split ship/source layout (when a project configures it)
 
 The default above co-locates source and deliverable in one folder. A project
@@ -553,9 +591,13 @@ briefing; the entry sequence:
    that before anything else.
 3. **Read the intent, not just the output.** The `.d2` header states purpose,
    audience, and scope; if there's a `presentation.py`, *it* holds the layout
-   decisions and their rationale — the comments are the design record. Iterate
-   there (or in the SVG, if it was hand-authored). Never reverse-engineer
-   coordinates out of the rendered SVG.
+   decisions and their rationale — the comments are the design record. Comments
+   here are not primarily for a human skimming the file; they exist so the next
+   editor (often a model) can reconstruct *why* a coordinate, a node order, or a
+   routing choice is what it is and iterate safely. So keep them **purposeful but
+   as full as they need to be** — capturing layout intent is worth more than
+   brevity. Iterate there (or in the SVG, if it was hand-authored). Never
+   reverse-engineer coordinates out of the rendered SVG.
 4. **Re-render → eyeball → re-run the semantic check → re-stamp.** Same loop as
    Step 5. A structural change goes back through the `.d2` and human review first
    (the authority rule); a cosmetic one stays in the generator/SVG.

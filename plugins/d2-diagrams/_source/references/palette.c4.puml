@@ -1,0 +1,10 @@
+' GENERATED from tokens.json by build-style.py — do not hand-edit.
+' With C4_Container.puml included, !include this then pass $tags="cat1" to Person()/Container()/etc.
+' C4 Person() draws a coloured BOX WITH A PERSON ICON inside — the house 'actor-card' form, natively.
+AddElementTag("cat1", $bgColor="#cce5ff", $fontColor="#1f4b6e", $borderColor="#4682b4")
+AddElementTag("cat2", $bgColor="#ffe4e1", $fontColor="#7a0e0e", $borderColor="#8b0000")
+AddElementTag("cat3", $bgColor="#c9f7c9", $fontColor="#0b5c0b", $borderColor="#1f8b1f")
+AddElementTag("cat4", $bgColor="#fef3c7", $fontColor="#7c2d12", $borderColor="#b45309")
+AddElementTag("cat5", $bgColor="#ede9fe", $fontColor="#4c1d95", $borderColor="#6d28d9")
+AddElementTag("cat6", $bgColor="#e0e7ff", $fontColor="#312e81", $borderColor="#4338ca")
+AddElementTag("external", $bgColor="#eceff3", $fontColor="#374151", $borderColor="#6b7280")

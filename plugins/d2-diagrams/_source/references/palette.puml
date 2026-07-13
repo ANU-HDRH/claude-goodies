@@ -1,0 +1,11 @@
+' GENERATED from tokens.json by build-style.py — do not hand-edit.
+' !include this file, then tag elements with the matching stereotype: rectangle "X" <<cat1>>
+<style>
+  .cat1 { BackgroundColor #cce5ff; LineColor #4682b4; FontColor #1f4b6e; }
+  .cat2 { BackgroundColor #ffe4e1; LineColor #8b0000; FontColor #7a0e0e; }
+  .cat3 { BackgroundColor #c9f7c9; LineColor #1f8b1f; FontColor #0b5c0b; }
+  .cat4 { BackgroundColor #fef3c7; LineColor #b45309; FontColor #7c2d12; }
+  .cat5 { BackgroundColor #ede9fe; LineColor #6d28d9; FontColor #4c1d95; }
+  .cat6 { BackgroundColor #e0e7ff; LineColor #4338ca; FontColor #312e81; }
+  .external { BackgroundColor #eceff3; LineColor #6b7280; FontColor #374151; }
+</style>

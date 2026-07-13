@@ -46,6 +46,25 @@ classes: {
     style: { fill: "#ecfdf5"; stroke: "#059669"; stroke-width: 2; font-color: "#064e3b" }
   }
 
+  # --- C4-ish element kinds (colours track tokens.json cat-slots so a D2-native
+  #     render and a tokens-driven presentation .py agree) -----------------------
+  source: {
+    # An input / data source (a file set, spreadsheet, RO-Crate, feed).  cat3
+    style: { fill: "#c9f7c9"; stroke: "#1f8b1f"; stroke-width: 2; font-color: "#0b5c0b"; border-radius: 6 }
+  }
+  process: {
+    # A transform / build step that consumes inputs and emits an artefact.  cat5
+    style: { fill: "#ede9fe"; stroke: "#6d28d9"; stroke-width: 2; font-color: "#4c1d95"; border-radius: 6 }
+  }
+  artefact: {
+    # A produced output (a built site, a bundle, a report).  cat4
+    style: { fill: "#fef3c7"; stroke: "#b45309"; stroke-width: 2; font-color: "#7c2d12"; border-radius: 6 }
+  }
+  infra: {
+    # A hosting / infrastructure component (a web server, a CDN).  cat1
+    style: { fill: "#cce5ff"; stroke: "#4682b4"; stroke-width: 2; font-color: "#1f4b6e"; border-radius: 6 }
+  }
+
   # --- boundaries ----------------------------------------------------------
   external: {
     # A third-party or out-of-our-control system. Dashed to read as "not ours".
@@ -72,5 +91,23 @@ classes: {
     # A dependency or optional/async edge, set on a connection:
     #   api -> cache: lookup { class: weak }
     style: { stroke: "#94a3b8"; stroke-dash: 4 }
+  }
+  # Semantic edge kinds — colour encodes what a link MEANS (colours track
+  # tokens.json). Apply on a connection, e.g. `curator -> build.metadata { class: human }`.
+  flow: {
+    # An internal data flow between build-time steps.  neutral.edge (navy)
+    style: { stroke: "#2f4b7c"; stroke-width: 2 }
+  }
+  human: {
+    # A person acting on something (maintain, set up, review).  cat4 (amber)
+    style: { stroke: "#b45309"; stroke-width: 2 }
+  }
+  publish: {
+    # A bold cross-boundary publish/hand-off (deploy, deposit).  cat2 (maroon)
+    style: { stroke: "#8b0000"; stroke-width: 3 }
+  }
+  serve: {
+    # An access / consumption path, dashed.  cat1 (blue)
+    style: { stroke: "#4682b4"; stroke-width: 2; stroke-dash: 5 }
   }
 }
