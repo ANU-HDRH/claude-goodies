@@ -10,6 +10,17 @@ what it expects from your project, and how to install it. The full working
 practice lives in [`SKILL.md`](SKILL.md); the deep reference material is in
 [`references/`](references/).
 
+> **D2 is the home tool, but the house style, the semantic-parity check, and the
+> presentation-render pipeline now span three formats — Mermaid, PlantUML, and
+> D2.** A project that authors most diagrams in Mermaid (e.g. for GitHub inline
+> rendering) and reaches for PlantUML or D2 only when needed can still share **one**
+> palette and run the **same** checks across all of them. The workflow is
+> *format-first*: improve the diagram in its own tool with the shared house style,
+> ship that if it clears the bar, and escalate to a crafted **presentation render**
+> only when it doesn't (and only after asking). See
+> [`references/presentation-render.md`](references/presentation-render.md) for the
+> cross-tool detail and [One house style across the three tools](#one-house-style-across-the-three-tools) below.
+
 ---
 
 ## What it produces (the artifacts)
@@ -73,6 +84,62 @@ It re-hashes the recorded sources and names any that drifted. Because it's pure
 stdlib and needs no `d2`, it drops cleanly into a pre-commit hook or CI later.
 (`freshness.py stamp <svg> <source>…` writes/updates the manifest; the generator
 may write the manifest itself in the same format.)
+
+---
+
+## One house style across the three tools
+
+The palette is defined **once**, in [`references/tokens.json`](references/tokens.json),
+and fanned out to every tool by [`references/build-style.py`](references/build-style.py).
+A diagram never invents colours; it maps its own domains onto generic slots, or tags
+elements with a named role. Re-run `build-style.py` after editing `tokens.json` and
+every generated file below updates together.
+
+`tokens.json` holds three things:
+
+- **`categories`** — generic colour slots `cat1..cat6` (+ `external`, `neutral`). A
+  diagram maps a domain to a slot (`admin → cat1`); that mapping is its *only* styling
+  choice.
+- **`roles`** — named semantic kinds (`svc`, `actor`, `decision`, `store`, `queue`,
+  `source`, `process`, `artefact`, `infra`, `group`). Each carries a colour (a `slot`
+  reference so it can't drift, or explicit hex) and a `shape`.
+- **`edges`** — semantic connection kinds (`flow`, `human`, `publish`, `serve`, `weak`).
+
+`build-style.py` generates, from those, one palette per format:
+
+| Generated file | Tool | Applied by |
+|------|------|-----------|
+| `palette.d2` | D2 | `...@palette` then `{ class: cat1 }` |
+| `style.d2` *(generated)* | D2 | `...@style` then `{ class: actor }` — the **role** vocabulary, with shapes |
+| `palette.mmd` | Mermaid | paste the `classDef` block, then `class n cat1` |
+| `palette.css` | Mermaid | `mmdc -C palette.css` — no `classDef` in the `.mmd`; nodes just carry `class n cat1` |
+| `palette.puml` | PlantUML | `!include palette.puml` then `<<cat1>>` |
+| `palette.c4.puml` | C4-PlantUML | `!include` then `$tags="cat1"` (+ `AddRelTag` for edges) |
+| `roles.md` | all three | the cross-tool cheat sheet: each role's per-tool node syntax + shape fallbacks |
+
+**Colour is fully exchangeable across the three tools** (a `source` node is the same
+green in D2, Mermaid, and PlantUML). **Shape is set at the node** in Mermaid/PlantUML
+(their styling can't set it) and the tools don't share every shape — Mermaid has no
+`person` or `queue`, PlantUML has no `diamond` element — so `roles.md` gives the
+per-tool node syntax and names the fallbacks.
+
+### Presentation generators share their glyphs
+
+When a presentation render is produced by a `.py` generator, its SVG primitives —
+the person icon, cards, cylinders, `[system]` boundaries, edges, the auto-sized
+legend — come from **one shared library, [`references/glyphs.py`](references/glyphs.py)**,
+which pulls colour/font from the same `tokens.json`. A generator adds the skill's
+`references/` to `sys.path` and does `from glyphs import …`, so the crafted look
+(especially the human icon) is identical across every presentation render and changes
+in one place — the same one-source discipline as `tokens.json` for colour.
+
+### Keeping both a native and a presentation render
+
+When you keep both, name them by the source's format so provenance is obvious:
+`<name>.improved.<fmt>.svg` for the format-improved **native** render (the tool draws
+it) and `<name>.py.svg` for the **presentation** render (the crafted SVG). The
+generator writes `<name>.py.svg` and must never overwrite the source's own `<name>.svg`
+or the native `.improved.<fmt>.svg`.
 
 ---
 
@@ -142,10 +209,14 @@ edits — orthogonal to how the skill resolves paths.
 | `d2` | rendering and the semantic equivalence check | **yes** — hard requirement |
 | `rsvg-convert` (or `resvg`, Inkscape; `cairosvg` as no-sudo fallback) | rasterizing a crafted SVG to a PNG you can eyeball | effectively yes for the presentation path |
 | `uv` | running a `presentation.py` generator with a pinned interpreter | recommended, not required (`python3` works) |
-| `python3` | the bundled `freshness.py` / `check-presentation.py` (pure stdlib) | yes (any 3.x) |
+| `python3` | the bundled `freshness.py` / `check-presentation.py` / `build-style.py` (pure stdlib) | yes (any 3.x) |
+| `mmdc` (`@mermaid-js/mermaid-cli`) | rendering a **Mermaid** source to SVG (`mmdc -b white`) | only when a diagram is authored in Mermaid |
+| `plantuml` (+ Java, Graphviz `dot`) | rendering a **PlantUML** source to SVG | only when a diagram is authored in PlantUML |
 
-The skill's **own scripts are bundled** and need no install — only the external
-binaries above are system prerequisites. There is no manifest to declare them;
+The parity check (`check-presentation.py`) reads Mermaid/PlantUML **source text**, so
+it needs neither `mmdc` nor `plantuml` — those are required only to *render* those
+formats' native SVGs. The skill's **own scripts are bundled** and need no install —
+only the external binaries above are system prerequisites. There is no manifest to declare them;
 the skill's preflight (Step 0) detects what's missing and hands you a single
 install message. Install guides: [`d2`](https://d2lang.com/tour/install/),
 [`uv`](https://docs.astral.sh/uv/), and `librsvg2-bin` (`apt`/`brew`) for
@@ -178,11 +249,22 @@ prompt for permission while the skill is active.
 SKILL.md                          # the practice: the full workflow Claude follows
 README.md                         # this file
 references/
-  style.d2 / style.md             # the house visual language + its documentation
-  state-machine.d2 / state-machines.md   # state-machine modelling convention
-  presentation-render.md          # the AI-presentation contract, check, iteration loop
-  check-presentation.py           # semantic-equivalence guard (SVG ⟷ .d2 nodes/edges)
+  tokens.json                     # THE single source of the palette (cat slots + roles + edges)
+  build-style.py                  # generates every palette below from tokens.json
+  style.d2                        # GENERATED — the D2 role vocabulary (...@style)
+  palette.d2                      # GENERATED — D2 generic cat slots (...@palette)
+  palette.mmd / palette.css       # GENERATED — Mermaid classDef block / external stylesheet (mmdc -C)
+  palette.puml / palette.c4.puml  # GENERATED — PlantUML <style> stereotypes / C4 tags
+  roles.md                        # GENERATED — cross-tool role cheat sheet (per-tool node syntax)
+  style.md                        # the house visual language, documented
+  glyphs.py                       # shared SVG glyph library for presentation .py generators
+  presentation-render.md          # the format-first workflow + AI-presentation contract, check, iteration
+  check-presentation.py           # semantic-equivalence guard — D2, PlantUML AND Mermaid sources
   freshness.py                    # content-hash freshness guard (stamp + check)
-  lyrebird_architecture.md        # worked-example source material
+  state-machines.md               # state-machine modelling convention
+  lyrebird_architecture.md        # worked-example source material (dev-only, not shipped)
 tests/                            # cold-context test diagrams and harness output
 ```
+
+> The `palette.*`, `style.d2`, and `roles.md` files are **generated** — do not
+> hand-edit them; edit `tokens.json` and re-run `build-style.py`.

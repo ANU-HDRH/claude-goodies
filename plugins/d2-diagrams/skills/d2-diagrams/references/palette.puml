@@ -8,4 +8,14 @@
   .cat5 { BackgroundColor #ede9fe; LineColor #6d28d9; FontColor #4c1d95; }
   .cat6 { BackgroundColor #e0e7ff; LineColor #4338ca; FontColor #312e81; }
   .external { BackgroundColor #eceff3; LineColor #6b7280; FontColor #374151; }
+  .svc { BackgroundColor #eef2ff; LineColor #4f46e5; FontColor #312e81; }
+  .actor { BackgroundColor #f1f5f9; LineColor #475569; FontColor #1e293b; }
+  .decision { BackgroundColor #fff1f2; LineColor #e11d48; FontColor #881337; }
+  .store { BackgroundColor #fffbeb; LineColor #d97706; FontColor #78350f; }
+  .queue { BackgroundColor #ecfdf5; LineColor #059669; FontColor #064e3b; }
+  .source { BackgroundColor #c9f7c9; LineColor #1f8b1f; FontColor #0b5c0b; }
+  .process { BackgroundColor #ede9fe; LineColor #6d28d9; FontColor #4c1d95; }
+  .artefact { BackgroundColor #fef3c7; LineColor #b45309; FontColor #7c2d12; }
+  .infra { BackgroundColor #cce5ff; LineColor #4682b4; FontColor #1f4b6e; }
+  .group { BackgroundColor #fafafa; LineColor #cbd5e1; FontColor #475569; }
 </style>

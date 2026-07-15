@@ -49,14 +49,13 @@ matter:
 
 - **`d2`** (`command -v d2`) — required for everything. A hard stop if missing.
 - **An SVG-to-PNG rasterizer** (`command -v rsvg-convert resvg inkscape`) —
-  needed in practice for almost every diagram, because the default deliverable
-  for anything beyond a trivially simple diagram is a **presentation render**
-  (Step 5), whose craft → rasterize → eyeball → refine loop depends on turning
+  needed whenever a diagram escalates to a **presentation render** (Step 5, the
+  optional path), whose craft → rasterize → eyeball → refine loop depends on turning
   a hand-crafted SVG into a PNG you can look at. **`d2`'s built-in PNG export
   does not cover this** — it only rasterizes D2's *own* renders, not a crafted
-  SVG. So a rasterizer is effectively required; treat its absence as a blocker
-  for the presentation path (not a hard stop only if every diagram you will make
-  is simple enough to ship as a raw D2 render). The standard choice is
+  SVG. So treat its absence as a blocker for the presentation path only; a diagram
+  that ships as a house-styled native render needs no crafted-SVG rasterizer. The
+  standard choice is
   `rsvg-convert` (lowest-friction install); `cairosvg` is the no-sudo fallback —
   but note `cairosvg` needs the native **`libcairo`** library, not just the
   Python package: a bare `pip install cairosvg` still fails at runtime with
@@ -96,10 +95,10 @@ consolidated message listing exactly what they need:
 > Then restart your shell (or open a new terminal) so the binaries are picked
 > up, and re-run.
 
-Trim that message to only the missing pieces. The rasterizer is genuinely
-optional only if every diagram in this session is simple enough to ship as a
-raw D2 render with no presentation pass — rare in practice. When in doubt,
-ask for it: the presentation loop is the normal path.
+Trim that message to only the missing pieces. The rasterizer is needed only when a
+diagram escalates to the presentation render (Step 5); a house-styled native render
+ships without it. When in doubt, ask for it so the presentation path is available if
+a diagram turns out to need it.
 
 Source-hash stamping and freshness checks use the bundled `freshness.py`
 (`${CLAUDE_SKILL_DIR}/references/freshness.py`) — pure stdlib, so it needs only
@@ -367,15 +366,22 @@ D2's own controls — `direction`, `near`, `grid-rows`/`grid-columns`, explicit
 ordering, or pinning a layout engine — not by freezing or hand-editing the
 render.
 
-## Step 5: Presentation render — D2 is semantic, AI presents
+## Step 5: Presentation render — OPTIONAL, only when the native render can't reach the bar
 
-This is the **default deliverable** for anything beyond a trivially simple
-diagram. D2's own render is fine for a throwaway sketch, but it has a low
-ceiling — composition, visual hierarchy, annotation, illustration, and even
-basics like sequence ordering are things no amount of styling will buy — and
-its output does not clear a high bar. So the normal path is: use D2 to nail and
-*verify* the semantics (Steps 1–4), then have an AI craft a **bespoke SVG** as
-the thing you actually ship — *without* surrendering the source of truth:
+**Order matters: produce the house-styled NATIVE render first (Steps 2–4), look at
+it, and ship it if it clears the bar. The presentation render is an escalation, not
+the default — and you ASK before taking it.** Do not jump straight to a crafted SVG
+or a generator: the native `.d2`/`.puml`/`.mmd`, once styled from the house palette,
+is enough for most diagrams and stays fully diagram-as-code.
+
+D2's own render does have a lower ceiling — composition, visual hierarchy,
+annotation, illustration, and even sequence ordering are things styling alone won't
+buy. *When* the native render genuinely can't reach the target (and only then), have
+an AI craft a **bespoke SVG** as the shipped artifact — *without* surrendering the
+source of truth. First show the native render and confirm the escalation is wanted;
+auto-producing a generator is wrong (it is a second, derived artifact to maintain).
+The gate is: native-improved first → **ask** → presentation only if the answer is yes.
+Then:
 
 - The `.d2` still owns the semantics; the crafted SVG is a **derived
   presentation artifact**, regenerable from it, never the place structure is
@@ -423,9 +429,9 @@ the layout intent lives, and a returning session has nothing else to edit.
 The mechanical check verifies the node/edge *set*, not labels, decoration, or
 whether the layout tells the truth — those stay a human review of the artwork.
 The full workflow, the tagging contract, the iteration loop, and the limitations
-(e.g. container dotted ids) live in `references/presentation-render.md`. The only
-diagrams that skip this step are the trivially simple ones a raw D2 render
-already serves well enough.
+(e.g. container dotted ids) live in `references/presentation-render.md`. Reach this
+step only for diagrams whose house-styled native render doesn't clear the bar, and
+only after asking — most diagrams ship at Step 4 without it.
 
 ## Diagram unit on disk
 

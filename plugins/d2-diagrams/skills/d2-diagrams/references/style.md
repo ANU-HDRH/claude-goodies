@@ -20,8 +20,11 @@ api  -> db:  query
 ```
 
 "Applying the house style" is exactly this: the source spreads in the shared
-classes and references them. There is no post-render repaint. Change the look
-for every diagram at once by editing `style.d2`.
+classes and references them. There is no post-render repaint. Change the look for
+every diagram at once by editing **`tokens.json`** and re-running `build-style.py`:
+`style.d2` (the D2 role vocabulary) and every `palette.*` are now **generated** from
+those tokens, so one edit recolours D2, Mermaid, and PlantUML together. Do not
+hand-edit `style.d2` — it carries a "GENERATED — do not hand-edit" header.
 
 ## The palette and classes
 
@@ -188,10 +191,16 @@ rather than inventing a new shape per diagram.
 
 ## Extending it
 
-Add classes to `style.d2` when a real diagram needs a role the palette does not
-cover — keep the fill/stroke/font-of-one-hue pattern and pick a hue not already
-spoken for. Resist styling objects inline in individual diagrams: a one-off
-inline style is a class that has not been named yet. Promote it.
+Add a role in **`tokens.json`** (the `roles` block — a `slot` reference for colour
+so it can't drift, or explicit fill/stroke/text, plus a `shape`) when a real diagram
+needs one the palette does not cover, then re-run `build-style.py`. That regenerates
+the role into **every** tool: D2 (`style.d2`, with the shape), Mermaid
+(`palette.mmd`/`.css`), and PlantUML (`palette.puml` stereotype + `palette.c4.puml`
+tag), plus a row in **`roles.md`** — the cross-tool cheat sheet giving each role's
+per-tool node syntax (colour is identical everywhere; shape is set at the node in
+Mermaid/PlantUML, so `roles.md` notes the fallbacks, e.g. Mermaid has no `person`).
+Edge roles go in the `edges` block. Resist styling objects inline in a diagram: a
+one-off inline style is a role that has not been named yet — promote it to tokens.
 
-For the hand-drawn look on informal diagrams, uncomment `sketch: true` in
-`style.d2`'s `d2-config` (or pass `--sketch` at render time).
+For the hand-drawn look, uncomment `sketch: true` in `build-style.py`'s emitted
+`d2-config` (or pass `--sketch` at render time).

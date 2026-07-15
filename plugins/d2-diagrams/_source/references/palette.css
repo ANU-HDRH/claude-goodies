@@ -22,3 +22,24 @@
 .cluster.frame-cat4 rect { fill:#fffbeb !important; stroke:#b45309 !important; stroke-dasharray:6 4 !important; }
 .cluster.frame-cat5 rect { fill:#f5f3ff !important; stroke:#6d28d9 !important; stroke-dasharray:6 4 !important; }
 .cluster.frame-cat6 rect { fill:#eef2ff !important; stroke:#4338ca !important; stroke-dasharray:6 4 !important; }
+/* --- named roles (colour; shape author-chosen, see roles.md) --- */
+.svc rect, .svc polygon, .svc path { fill:#eef2ff !important; stroke:#4f46e5 !important; }
+.svc .nodeLabel, .svc span, .svc p { color:#312e81 !important; }
+.actor rect, .actor polygon, .actor path { fill:#f1f5f9 !important; stroke:#475569 !important; }
+.actor .nodeLabel, .actor span, .actor p { color:#1e293b !important; }
+.decision rect, .decision polygon, .decision path { fill:#fff1f2 !important; stroke:#e11d48 !important; }
+.decision .nodeLabel, .decision span, .decision p { color:#881337 !important; }
+.store rect, .store polygon, .store path { fill:#fffbeb !important; stroke:#d97706 !important; }
+.store .nodeLabel, .store span, .store p { color:#78350f !important; }
+.queue rect, .queue polygon, .queue path { fill:#ecfdf5 !important; stroke:#059669 !important; }
+.queue .nodeLabel, .queue span, .queue p { color:#064e3b !important; }
+.source rect, .source polygon, .source path { fill:#c9f7c9 !important; stroke:#1f8b1f !important; }
+.source .nodeLabel, .source span, .source p { color:#0b5c0b !important; }
+.process rect, .process polygon, .process path { fill:#ede9fe !important; stroke:#6d28d9 !important; }
+.process .nodeLabel, .process span, .process p { color:#4c1d95 !important; }
+.artefact rect, .artefact polygon, .artefact path { fill:#fef3c7 !important; stroke:#b45309 !important; }
+.artefact .nodeLabel, .artefact span, .artefact p { color:#7c2d12 !important; }
+.infra rect, .infra polygon, .infra path { fill:#cce5ff !important; stroke:#4682b4 !important; }
+.infra .nodeLabel, .infra span, .infra p { color:#1f4b6e !important; }
+.group rect, .group polygon, .group path { fill:#fafafa !important; stroke:#cbd5e1 !important; }
+.group .nodeLabel, .group span, .group p { color:#475569 !important; }
