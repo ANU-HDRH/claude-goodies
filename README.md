@@ -9,7 +9,11 @@ It currently ships:
 | Plugin        | What it is                                                        | Status |
 |---------------|------------------------------------------------------------------|--------|
 | `d2-diagrams` | Author, iterate on, and render diagrams with D2 as the source.   | ready  |
-| `bower`       | Bower spec-driven development (SDD) framework.                    | ready (external repo) |
+
+> **Note:** The **Bower spec-driven development (SDD) framework** used to be
+> distributed here. It has been removed from this marketplace — it better suits a
+> `git clone` → scaffold → vendor-into-project workflow. It now lives at
+> <https://github.com/ANU-HDRH/bower-framework>.
 
 ---
 
@@ -23,7 +27,6 @@ Add this marketplace, then install the plugins you want.
 
 # Install a plugin
 /plugin install d2-diagrams@claude-goodies
-/plugin install bower@claude-goodies
 ```
 
 You can also browse interactively with `/plugin`. To update later:
@@ -59,7 +62,7 @@ claude-goodies/
 ```
 
 Plugins can live in-repo (under `plugins/`) or be referenced from an external
-repo in `marketplace.json` (see `bower` below).
+repo in `marketplace.json` via a `source` entry.
 
 ### Where things go
 
@@ -91,10 +94,6 @@ when the shipped artifact is a built subset. See
 
 - **d2-diagrams** — vendored from `~/innovation/d2diag`. This repo is now the one
   place it lives; edit it here.
-- **bower** — referenced directly from
-  <https://github.com/ANU-HDRH/bower-framework> (branch `plugin-marketplace`) via
-  an external `source` entry in `marketplace.json`. It is not vendored into this
-  repo; edit it in its own repo.
 
 ---
 
