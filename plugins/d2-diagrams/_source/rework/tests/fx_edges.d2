@@ -1,0 +1,12 @@
+...@style
+direction: down
+outside: Outside { class: svc }
+box: Container {
+  class: group
+  a: A { class: svc }
+  b: B { class: svc }
+  a -> b: internal
+  a -> b: parallel second
+  a <-> b: bidir
+}
+outside -> box.a: cross

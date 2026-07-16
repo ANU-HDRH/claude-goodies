@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- correctly depicts every node + edge of fx_edges.d2, including the
+       container-internal, parallel, and bidirectional edges. -->
+  <g data-d2-node="outside"><rect/></g>
+  <g data-d2-node="box"><rect/></g>
+  <g data-d2-node="box.a"><rect/></g>
+  <g data-d2-node="box.b"><rect/></g>
+  <path data-d2-edge="box.a->box.b"/>
+  <path data-d2-edge="box.a->box.b"/>
+  <path data-d2-edge="box.a<->box.b"/>
+  <path data-d2-edge="outside->box.a"/>
+</svg>

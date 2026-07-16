@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <g data-d2-node="outside"><rect/></g>
+  <g data-d2-node="box"><rect/></g>
+  <g data-d2-node="box.a"><rect/></g>
+  <g data-d2-node="box.b"><rect/></g>
+  <path data-d2-edge="box.a->box.b"/>
+  <path data-d2-edge="box.a->box.b"/>
+  <path data-d2-edge="box.b<->box.a"/>
+  <path data-d2-edge="outside->box.a"/>
+</svg>

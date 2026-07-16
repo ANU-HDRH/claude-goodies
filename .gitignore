@@ -6,3 +6,4 @@ plugins/*/_source/dist/
 
 # OS / editor cruft
 .DS_Store
+*.pyc
