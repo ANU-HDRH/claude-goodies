@@ -23,7 +23,7 @@ def _tokens():
         cands.append(os.path.join(os.environ["CLAUDE_SKILL_DIR"], "references", "tokens.json"))
     cands.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "tokens.json"))
     cands += sorted(glob.glob(os.path.expanduser(
-        "~/.claude/plugins/cache/claude-goodies/draw-diagram/*/skills/draw-diagram/references/tokens.json")))
+        "~/.claude/plugins/cache/*/draw-diagram/*/skills/draw-diagram/references/tokens.json")))
     for p in cands:
         if p and os.path.isfile(p):
             with open(p, encoding="utf-8") as fh:
