@@ -28,7 +28,7 @@ OUT="dist/$NAME"
 # references/ entries that are dev-only fixtures, not part of the shipped skill.
 # Everything else in references/ is bundled (the skill loads it at runtime via
 # ${CLAUDE_SKILL_DIR}/references/...).
-EXCLUDE=( lyrebird_architecture.md )
+EXCLUDE=( )  # no dev-only references to exclude at present
 
 is_excluded() {
   local base="$1" e

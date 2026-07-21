@@ -262,7 +262,6 @@ references/
   check-presentation.py           # semantic-equivalence guard — D2, PlantUML AND Mermaid sources
   freshness.py                    # content-hash freshness guard (stamp + check)
   state-machines.md               # state-machine modelling convention
-  lyrebird_architecture.md        # worked-example source material (dev-only, not shipped)
 tests/                            # cold-context test diagrams and harness output
 ```
 
