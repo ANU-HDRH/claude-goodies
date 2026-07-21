@@ -256,9 +256,10 @@ add('</svg>')
 
 svg = "\n".join(parts)
 
-# stamp source hash
-digest = hashlib.sha256(open(D2, "rb").read()).hexdigest()
-svg = svg.replace("<svg ", f"<!-- source-sha256: {digest} -->\n<svg ", 1)
-
 open(OUT, "w").write(svg)
-print("wrote", OUT, "sha256", digest)
+# Provenance uses the shared guard's multi-source manifest, NOT a hand-rolled
+# single hash. After generating, stamp with the standard tool so `freshness.py
+# check` can verify it (it records the .d2, any imported style, and this generator):
+#   python3 ../../references/freshness.py stamp <OUT> <D2> <this-generator.py>
+# A bare `source-sha256` comment is not recognised by the guard.
+print("wrote", OUT)
