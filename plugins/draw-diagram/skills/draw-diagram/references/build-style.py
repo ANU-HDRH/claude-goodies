@@ -19,8 +19,26 @@ Pure stdlib.  Usage: python3 build-style.py [outdir]
 import json, os, sys
 
 here = os.path.dirname(os.path.abspath(__file__))
-tok = json.load(open(os.path.join(here, "tokens.json"), encoding="utf-8"))
-outdir = sys.argv[1] if len(sys.argv) > 1 else here
+# Args: an optional positional OUTDIR and an optional `--tokens <path>`. A
+# project with its own house style points --tokens at its tokens.json and OUTDIR
+# at where its palettes should land, so one generator serves the skill's own
+# defaults AND a repo's house style. Both default to this script's directory.
+_args = sys.argv[1:]
+tokens_path = os.path.join(here, "tokens.json")
+outdir = here
+_positional = []
+_i = 0
+while _i < len(_args):
+    if _args[_i] == "--tokens" and _i + 1 < len(_args):
+        tokens_path = _args[_i + 1]
+        _i += 2
+    else:
+        _positional.append(_args[_i])
+        _i += 1
+if _positional:
+    outdir = _positional[0]
+with open(tokens_path, encoding="utf-8") as _tf:
+    tok = json.load(_tf)
 cats = tok["categories"]
 ext = tok["external"]
 neu = tok["neutral"]
@@ -60,6 +78,8 @@ SHAPE = {
     "cylinder":  ("cylinder",  '[("', '")]', "database",  ""),
     "diamond":   ("diamond",   '{"',  '"}',  "rectangle", "PlantUML has no diamond element → rectangle + colour"),
     "queue":     ("queue",     '[["', '"]]', "queue",     "Mermaid has no queue shape → subroutine fallback"),
+    "hexagon":   ("hexagon",   '{{"', '"}}', "rectangle", "PlantUML has no hexagon → rectangle + colour"),
+    "cloud":     ("cloud",     '["',  '"]',  "cloud",     "Mermaid has no cloud shape → rectangle + colour"),
 }
 
 
@@ -175,6 +195,8 @@ for n, spec in roles.items():
     body = f'fill: "{f}"; stroke: "{s}"; stroke-width: {spec.get("sw", 2)}; font-color: "{t}"'
     if "radius" in spec:
         body += f'; border-radius: {spec["radius"]}'
+    if spec.get("multiple"):
+        body += '; multiple: true'
     sd.append(f'  # {spec.get("desc", "")}')
     sd.append(f'  {n}: {{ {pre}style: {{ {body} }} }}')
 sd.append('  # a third-party / out-of-our-control system (dashed)')
