@@ -18,4 +18,10 @@
   .artefact { BackgroundColor #fef3c7; LineColor #b45309; FontColor #7c2d12; }
   .infra { BackgroundColor #cce5ff; LineColor #4682b4; FontColor #1f4b6e; }
   .group { BackgroundColor #fafafa; LineColor #cbd5e1; FontColor #475569; }
+  ' --- state-machine roles: `state "Idle" as idle <<state>>`; [*] gives initial/final natively ---
+  .start { BackgroundColor #1e293b; LineColor #1e293b; FontColor #1e293b; }
+  .state { BackgroundColor #ffffff; LineColor #475569; FontColor #1e293b; }
+  .final { BackgroundColor #1e293b; LineColor #1e293b; FontColor #1e293b; }
+  .choice { BackgroundColor #fff1f2; LineColor #e11d48; FontColor #881337; }
+  .composite { BackgroundColor #fafafa; LineColor #cbd5e1; FontColor #475569; }
 </style>

@@ -234,13 +234,17 @@ relationship the source mentions. Two levers, both first-author concerns:
   `grid-rows`/`grid-columns` when the content is genuinely a matrix or you need
   forced rows. Layout is part of authoring, not just an iteration fix-up.
 
-**State machines**: D2 has no dedicated state-machine grammar. Model them as a
-general graph plus containers for composite states, with a consistent styling
-convention for start/end and pseudostates. Keep that convention in
-`references/state-machines.md` and apply it uniformly so they read as state
-machines, not just box-and-arrow graphs. If formal state semantics (orthogonal
-regions, history states) are ever genuinely required, that is the one case to
-reach for a dedicated tool rather than force D2.
+**State machines**: supported in all three formats, sharing one colour
+vocabulary generated from `tokens.json` (`state_machine`). Mermaid
+(`stateDiagram-v2`) and PlantUML (`state`) have native grammars — `[*]` renders
+initial/final, and the house colours come from the generated `palette.mmd` /
+`palette.puml`. D2 has no state grammar, so it uses the generated
+`state-machine.d2` convention (a general graph tagged with `start`/`state`/
+`final`/`choice`/`composite`, spread in alongside the house style). Full
+guidance and a worked example in each format live in
+`references/state-machines.md`. For formal semantics (orthogonal regions,
+history states), Mermaid and PlantUML model more natively than D2 — reach for
+whichever expresses it directly.
 
 ## Step 3: Preview (verify structure)
 

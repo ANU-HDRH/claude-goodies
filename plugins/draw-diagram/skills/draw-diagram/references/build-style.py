@@ -26,6 +26,7 @@ ext = tok["external"]
 neu = tok["neutral"]
 roles = tok.get("roles", {})
 edges = tok.get("edges", {})
+sm = tok.get("state_machine", {})
 
 
 def rcol(spec):
@@ -38,6 +39,15 @@ def rcol(spec):
 
 def ecol(spec):
     return cats[spec["slot"]]["stroke"] if "slot" in spec else spec["stroke"]
+
+
+def smcol(spec):
+    """(fill, stroke, text) for a state-machine role. Like rcol, but the pseudostate
+    dots (initial/final) carry no label, so text defaults to the stroke."""
+    if "slot" in spec:
+        s = ext if spec["slot"] == "external" else cats[spec["slot"]]
+        return s["fill"], s["stroke"], s["text"]
+    return spec["fill"], spec["stroke"], spec.get("text", spec["stroke"])
 
 
 # How each canonical role SHAPE is authored per tool. Colour arrives via the generated
@@ -84,6 +94,11 @@ mmd.append("%% --- named roles (semantic; colour only — pick the node shape vi
 for n, spec in roles.items():
     f, s, t = rcol(spec)
     mmd.append(f"classDef {n} fill:{f},stroke:{s},color:{t};")
+mmd.append("%% --- state-machine roles (stateDiagram-v2: paste these, then e.g. `class Idle state`;")
+mmd.append("%%     `[*]` renders the initial/final pseudostates natively, so start/final are for D2 only) ---")
+for n, spec in sm.items():
+    f, s, t = smcol(spec)
+    mmd.append(f"classDef {n} fill:{f},stroke:{s},color:{t};")
 write("palette.mmd", "\n".join(mmd) + "\n")
 
 # ---- Mermaid external stylesheet (mmdc -C palette.css; no classDef pasted into the .mmd) ----
@@ -109,6 +124,10 @@ css.append("/* --- named roles (colour; shape author-chosen, see roles.md) --- *
 for n, spec in roles.items():
     f, s, t = rcol(spec)
     css.append(css_node(n, {"fill": f, "stroke": s, "text": t}))
+css.append("/* --- state-machine roles (for stateDiagram-v2 via `mmdc -C`; inline classDef in palette.mmd is the primary path) --- */")
+for n, spec in sm.items():
+    f, s, t = smcol(spec)
+    css.append(css_node(n, {"fill": f, "stroke": s, "text": t}))
 write("palette.css", "\n".join(css) + "\n")
 
 # ---- PlantUML (plain: <style> by stereotype) ----
@@ -120,6 +139,10 @@ for n, c in cats.items():
 pu.append(f"  .external {{ BackgroundColor {ext['fill']}; LineColor {ext['stroke']}; FontColor {ext['text']}; }}")
 for n, spec in roles.items():
     f, s, t = rcol(spec)
+    pu.append(f"  .{n} {{ BackgroundColor {f}; LineColor {s}; FontColor {t}; }}")
+pu.append("  ' --- state-machine roles: `state \"Idle\" as idle <<state>>`; [*] gives initial/final natively ---")
+for n, spec in sm.items():
+    f, s, t = smcol(spec)
     pu.append(f"  .{n} {{ BackgroundColor {f}; LineColor {s}; FontColor {t}; }}")
 pu.append("</style>")
 write("palette.puml", "\n".join(pu) + "\n")
@@ -173,6 +196,36 @@ for n, spec in edges.items():
 sd.append("}")
 write("style.d2", "\n".join(sd) + "\n")
 
+# ---- D2 state-machine convention (state-machine.d2) — GENERATED (was hand-written) ----
+# D2 has no state grammar; these classes carry the convention (initial dot, final
+# double-border, choice diamond, error state), coloured from tokens.state_machine so
+# one edit there recolours state machines in every tool.
+smd = ["# GENERATED from tokens.json by build-style.py — do not hand-edit.",
+       "# D2 has no state-machine grammar, so a state machine is a general graph that reads",
+       "# as one by applying these classes. Spread this in ALONGSIDE the house style:",
+       "#   ...@style",
+       "#   ...@state-machine",
+       "# then: initial `i: \"\" { class: start }`, a state `S { class: state }`, a choice",
+       "# `c: \"\" { class: choice }`, final `done: DONE { class: final }`, and containers `{ class: composite }`.",
+       "# Mermaid (stateDiagram-v2) and PlantUML (state) instead use their native `[*]` for",
+       "# initial/final and take these same colours from palette.mmd / palette.puml.",
+       "", "classes: {"]
+for n, spec in sm.items():
+    f, s, t = smcol(spec)
+    shp = spec.get("shape", "rectangle")
+    pre = "" if shp == "rectangle" else f"shape: {shp}; "
+    body = f'fill: "{f}"; stroke: "{s}"; stroke-width: {spec.get("sw", 2)}'
+    if spec.get("double"):
+        body += "; double-border: true"
+    if "text" in spec:
+        body += f'; font-color: "{t}"'
+    if "radius" in spec:
+        body += f'; border-radius: {spec["radius"]}'
+    smd.append(f'  # {spec.get("desc", "")}')
+    smd.append(f'  {n}: {{ {pre}style: {{ {body} }} }}')
+smd.append("}")
+write("state-machine.d2", "\n".join(smd) + "\n")
+
 # ---- roles.md — the cross-tool exchange sheet (same role name in D2/Mermaid/PlantUML) ----
 rm = ["# Roles — one vocabulary across D2, Mermaid and PlantUML (GENERATED from tokens.json).",
       "",
@@ -192,7 +245,21 @@ rm += ["", "Edge roles (colour a connection):", "",
 for n, spec in edges.items():
     rm.append(f"| `{n}` | {ecol(spec)} | `a -> b {{ class: {n} }}` | "
               f"`a -->|L| b` then `class`/`linkStyle` | `Rel(a, b, \"L\", $tags=\"{n}\")` |")
+rm += ["", "State-machine roles — one colour source, three grammars. D2 has no state grammar,",
+       "so it imports `state-machine.d2` and tags nodes; Mermaid (`stateDiagram-v2`) and PlantUML",
+       "(`state`) have native grammars where `[*]` draws the initial/final pseudostates, and these",
+       "colours arrive via the generated `palette.mmd` / `palette.puml`.",
+       "",
+       "| Role | fill / stroke | D2 (`...@state-machine`) | Mermaid (`stateDiagram-v2`) | PlantUML (`state`) |",
+       "|---|---|---|---|---|"]
+for n, spec in sm.items():
+    f, s, _ = smcol(spec)
+    rm.append(f"| `{n}` | {f} / {s} | `S {{ class: {n} }}` | `class S {n}` | `state \"S\" as s <<{n}>>` |")
+rm += ["",
+       "`start` / `final` are D2-only styling (the dot and double-border dot); in Mermaid and",
+       "PlantUML write `[*]` and the tool renders those pseudostates for you."]
 write("roles.md", "\n".join(rm) + "\n")
 
-print(f"generated palettes (d2, mmd, css, puml, c4) + style.d2 + roles.md from tokens.json "
-      f"({len(cats)} categories, {len(roles)} roles, {len(edges)} edges)")
+print(f"generated palettes (d2, mmd, css, puml, c4) + style.d2 + state-machine.d2 + roles.md "
+      f"from tokens.json ({len(cats)} categories, {len(roles)} roles, {len(edges)} edges, "
+      f"{len(sm)} state-machine roles)")

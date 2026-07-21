@@ -1,23 +1,50 @@
-# State machines in D2
+# State machines
 
-D2 has no dedicated state-machine grammar. A state machine is therefore a
-general graph that *reads* as a state machine because the same small convention
-is applied every time. That convention lives in `state-machine.d2` (importable
-classes) next to this file; this document is the why and the how.
+State machines are supported in **all three formats** — D2, Mermaid, and
+PlantUML — sharing **one colour vocabulary** generated from `tokens.json`
+(`state_machine` block) by `build-style.py`. What differs is the *grammar*:
 
-## The convention
+- **D2 has no native state-machine grammar**, so a state machine is a general
+  graph that *reads* as one because a small convention is applied every time.
+  That convention lives in the generated `state-machine.d2` (importable classes).
+- **Mermaid (`stateDiagram-v2`) and PlantUML (`state`) have native grammars.**
+  `[*]` draws the initial and final pseudostates for you; you don't need a
+  convention file, only the house **colours**, which are generated into
+  `palette.mmd` (Mermaid `classDef`) and `palette.puml` (PlantUML `<style>`
+  stereotypes).
 
-Spread the state-machine classes in alongside the house style, then tag nodes:
+So there is a `state-machine.d2` but no `state-machine.mmd`/`.puml`: those tools
+have the grammar built in and take colour from their palette. Editing the
+`state_machine` block in `tokens.json` and re-running `build-style.py` recolours
+state machines in every tool at once.
+
+## The shared vocabulary
+
+| Role | Models | D2 (`...@state-machine`) | Mermaid (`stateDiagram-v2`) | PlantUML (`state`) |
+|---|---|---|---|---|
+| `start` | initial pseudostate | `i: "" { class: start }` (solid dot) | `[*] -->` (native) | `[*] -->` (native) |
+| `final` | final state | `done: "" { class: final }` (ring dot) | `--> [*]` (native) | `--> [*]` (native) |
+| `state` | a normal state | `S { class: state }` | `class S state` | `state "S" as S <<state>>` |
+| `choice` | a branch / choice | `c: "" { class: choice }` (diamond) | `state c <<choice>>` (native) + `class c choice` | `state c <<choice>>` |
+| `composite` | a state with a nested machine | `C { class: composite … }` | `state C { … }` (native) | `state C { … }` (native) |
+
+Colour is identical across tools (all from `tokens.json`). `start`/`final` are
+D2-only *styling* — in Mermaid and PlantUML write `[*]` and the tool renders
+those pseudostates itself.
+
+## D2 — the convention
+
+D2 has no state grammar, so spread the generated state-machine classes in
+alongside the house style and tag nodes:
 
 ```d2
 ...@style
 ...@state-machine
-
 direction: right
 
 i:      "" { class: start }       # initial pseudostate — a solid dot, no label
-idle:   Idle      { class: state }
-active: Active    { class: state }
+idle:   Idle    { class: state }
+active: Active  { class: state }
 done:   "" { class: final }       # final state — dot with a ring
 
 i      -> idle
@@ -26,25 +53,12 @@ active -> done:   finish
 active -> active: tick            # self-transition
 ```
 
-| Class       | Models                                   | Renders as            |
-|-------------|------------------------------------------|-----------------------|
-| `start`     | initial pseudostate                      | small solid dot       |
-| `final`     | final state                              | dot with a ring       |
-| `state`     | a normal state                           | rounded box           |
-| `choice`    | a branch point (may also fire an action) | diamond               |
-| `composite` | a state containing a nested machine      | rounded box container |
+Give a `start` node an **empty label** so it renders as a bare dot. When a
+machine has several distinct outcomes, label each `final` with its name
+(`done: COMPLETED { class: final }`) so a reviewer can tell the terminals apart.
 
-Give a `start` node an **empty label** (`i: "" { class: start }`) so it renders
-as a bare dot, the way state-chart notation expects. A `final` may be a bare dot
-too — but the double-border ring is subtle at full-diagram scale, so when a
-machine has **several distinct outcomes**, label each final with its name
-(`done: COMPLETED { class: final }`, `exit: "Distress EXIT" { class: final }`).
-The label is what lets a reviewer tell the terminals apart at a glance.
-
-## Transitions
-
-Label every transition with its trigger, and where it matters, the guard and
-action, in the usual `event [guard] / action` shape:
+**Transitions** carry the trigger, and where it matters the guard and action, in
+the usual `event [guard] / action` shape:
 
 ```d2
 active -> check?:  submit
@@ -52,51 +66,21 @@ check? -> active:  "rejected [attempts < 3] / increment"
 check? -> blocked: "rejected [attempts == 3]"
 ```
 
-A self-transition is just an edge from a state back to itself
-(`active -> active: tick`).
+**Choice / action points.** Use a `choice` diamond where an event reaches a
+branch. If the branch also *acts*, keep the diamond and put the action on the
+**outgoing edges** — do not invent a separate action shape.
 
-### Junctions and action points
+**Wait / pause states.** A state that pauses pending an external reply is an
+ordinary `state`; label the edge in with what triggered the pause and the edge
+out with what the external party did.
 
-Use a `choice` node when an event reaches a branch point. Classically a choice
-is a *guard-only* pseudostate with no behaviour, but in practice the branch
-point is often also where the machine *acts* — an end-of-turn dispatcher that
-reads control tokens, then routes. That is fine: keep the `choice` diamond and
-put the action on the **outgoing edges** (`[EXIT_INTERVIEW] / send supportive
-message`). Do not invent a separate action shape; the diamond already reads as
-"decide here," and the edge labels carry what happens on each path.
+**From-any-state transitions** (withdraw, cancel, reset) are the ubiquitous-edge
+hairball: wrap the sources in a `composite` region and draw a **single** edge
+from the container boundary, stating the convention in a `caption`.
 
-### Wait / pause states
-
-A state that **pauses the machine pending an external reply, then resumes** (a
-form submission, an approval, an awaited callback) has no special pseudostate —
-model it as an ordinary `state` whose only job is to wait. Draw the edge *into*
-it labelled with what triggered the pause, and the edge *back out* labelled with
-what the external party did:
-
-```d2
-eot   -> awaiting_form: "[STRUCTURED_<id>] / pause for form"
-awaiting_form -> turn:  "form submitted / resume"
-```
-
-Keep the wait state visually adjacent to where it pauses from, so the
-pause/resume pair reads as a short detour rather than a long span across the
-canvas.
-
-### From-any-state transitions
-
-A transition that can fire from **every** state — withdraw, cancel, hard
-reset — is the state-machine version of the ubiquitous-edge hairball (see
-SKILL.md, Step 2, "prune to the load-bearing edges"). Do **not** draw one edge
-per source state. Wrap the states it can fire from in a `composite` region and
-draw a **single** transition from the container boundary, then state the
-convention in a `caption` ("the edge from the session region stands for a
-withdraw from any state within it"). One edge, one note — not N edges.
-
-## Composite states
-
-Model a composite state as a container tagged `composite`; its inner states are
-nested normally, with their own `start`. Classes spread in at the root are
-visible inside containers, so there is no need to re-import:
+**Composite states** are a container tagged `composite`; inner states nest
+normally with their own `start`. Classes spread in at the root are visible
+inside containers:
 
 ```d2
 connected: Connected { class: composite
@@ -110,20 +94,76 @@ disconnected -> connected: link up
 connected    -> disconnected: drop
 ```
 
-## When to leave D2
+## Mermaid — `stateDiagram-v2`
 
-This convention covers ordinary state charts well. If you genuinely need formal
-semantics — orthogonal (concurrent) regions, history pseudostates, deep nesting
-with entry/exit actions that have to be exact — that is the one case to reach
-for a dedicated state-machine tool rather than force D2. Most diagrams labelled
-"state machine" are not that, and are better served by staying in D2 with the
-rest of the system's diagrams.
+Mermaid has the grammar natively. Use `[*]` for initial/final, nest composite
+states with `state Name { … }`, and pull the house colours by pasting the
+`state`/`choice`/`composite` `classDef` lines from `palette.mmd` (or render with
+`mmdc -C palette.css` and skip the paste), then `class <State> <role>`:
 
-**Concurrency, the informal kind.** True orthogonal regions are the leave-D2
-case above. But often you only need to show that *two things happen within one
-state* without claiming formal concurrency — e.g. a turn that streams a visible
-framing channel and a prose channel at once. Approximate it with a branch inside
-the state that fans out and then merges back to the same exit point, and accept
-that this reads as "both of these occur here," not as a formal parallel region.
-This is a deliberate compromise: name it as such in review so no one mistakes the
-branch+merge for real concurrency.
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> Idle
+    Idle --> Active: start
+    Active --> Active: tick
+    Active --> [*]: finish
+
+    state Connected {
+        [*] --> Syncing
+        Syncing --> Live
+    }
+    Idle --> Connected: link up
+
+    %% colours (from palette.mmd)
+    classDef state fill:#ffffff,stroke:#475569,color:#1e293b;
+    classDef composite fill:#fafafa,stroke:#cbd5e1,color:#475569;
+    class Idle,Active state
+    class Connected composite
+```
+
+Branch points use a native choice pseudostate (`state c <<choice>>`), coloured
+with `class c choice`.
+
+## PlantUML — `state`
+
+PlantUML also has the grammar natively. `!include palette.puml` for the house
+colours, declare states with the matching `<<stereotype>>`, and use `[*]` for
+initial/final:
+
+```plantuml
+@startuml
+!include palette.puml
+
+state "Idle" as Idle <<state>>
+state "Active" as Active <<state>>
+state "Connected" as Connected <<composite>> {
+  [*] --> Syncing
+  Syncing --> Live
+}
+
+[*] --> Idle
+Idle --> Active : start
+Active --> Active : tick
+Active --> [*] : finish
+Idle --> Connected : link up
+@enduml
+```
+
+A choice pseudostate is `state c <<choice>>`; put the action on the outgoing
+transitions, as in D2.
+
+## When to leave the house convention
+
+This covers ordinary state charts well in any of the three tools. If you
+genuinely need formal semantics — orthogonal (concurrent) regions, history
+pseudostates, exact entry/exit actions — PlantUML and Mermaid model more of that
+natively than D2 does; reach for whichever expresses it directly rather than
+forcing the D2 graph convention. Most diagrams labelled "state machine" are not
+that, and are better served staying in the format the rest of the pattern's
+diagrams use.
+
+**Informal concurrency.** To show that *two things happen within one state*
+without claiming formal concurrency, approximate it with a branch that fans out
+and merges back to the same exit, and name it as such in review so no one
+mistakes the branch+merge for a real parallel region.

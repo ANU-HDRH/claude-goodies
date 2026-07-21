@@ -43,3 +43,14 @@
 .infra .nodeLabel, .infra span, .infra p { color:#1f4b6e !important; }
 .group rect, .group polygon, .group path { fill:#fafafa !important; stroke:#cbd5e1 !important; }
 .group .nodeLabel, .group span, .group p { color:#475569 !important; }
+/* --- state-machine roles (for stateDiagram-v2 via `mmdc -C`; inline classDef in palette.mmd is the primary path) --- */
+.start rect, .start polygon, .start path { fill:#1e293b !important; stroke:#1e293b !important; }
+.start .nodeLabel, .start span, .start p { color:#1e293b !important; }
+.state rect, .state polygon, .state path { fill:#ffffff !important; stroke:#475569 !important; }
+.state .nodeLabel, .state span, .state p { color:#1e293b !important; }
+.final rect, .final polygon, .final path { fill:#1e293b !important; stroke:#1e293b !important; }
+.final .nodeLabel, .final span, .final p { color:#1e293b !important; }
+.choice rect, .choice polygon, .choice path { fill:#fff1f2 !important; stroke:#e11d48 !important; }
+.choice .nodeLabel, .choice span, .choice p { color:#881337 !important; }
+.composite rect, .composite polygon, .composite path { fill:#fafafa !important; stroke:#cbd5e1 !important; }
+.composite .nodeLabel, .composite span, .composite p { color:#475569 !important; }

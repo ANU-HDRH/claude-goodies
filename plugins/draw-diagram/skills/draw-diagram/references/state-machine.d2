@@ -1,47 +1,22 @@
-# State-machine convention — importable classes.
-#
-# D2 has no dedicated state-machine grammar, so a state machine is a general
-# graph that reads as one by applying these classes uniformly. Spread this in
-# ALONGSIDE the house style:
-#
+# GENERATED from tokens.json by build-style.py — do not hand-edit.
+# D2 has no state-machine grammar, so a state machine is a general graph that reads
+# as one by applying these classes. Spread this in ALONGSIDE the house style:
 #   ...@style
 #   ...@state-machine
-#
-# then tag nodes with the classes below. See state-machines.md for the full
-# convention and a worked example.
+# then: initial `i: "" { class: start }`, a state `S { class: state }`, a choice
+# `c: "" { class: choice }`, final `done: DONE { class: final }`, and containers `{ class: composite }`.
+# Mermaid (stateDiagram-v2) and PlantUML (state) instead use their native `[*]` for
+# initial/final and take these same colours from palette.mmd / palette.puml.
 
 classes: {
-  state: {
-    # A normal state. Rounded box, calm neutral fill.
-    style: { fill: "#f8fafc"; stroke: "#475569"; stroke-width: 2; font-color: "#1e293b"; border-radius: 12 }
-  }
-  start: {
-    # Initial pseudostate. Small solid dot. Give it an empty label: `i: "" { class: start }`.
-    shape: circle
-    width: 24
-    height: 24
-    style: { fill: "#1e293b"; stroke: "#1e293b" }
-  }
-  final: {
-    # Final state. Dot with a ring, via D2's double-border. The ring is subtle
-    # at full-diagram scale, so when a machine has SEVERAL distinct outcomes,
-    # give each final a short label naming it (`done: COMPLETED { class: final }`)
-    # rather than the bare empty-label dot — the label is what tells them apart.
-    shape: circle
-    width: 32
-    height: 32
-    style: { fill: "#1e293b"; stroke: "#1e293b"; double-border: true }
-  }
-  choice: {
-    # A branch point. Classically a guard-only pseudostate, but it may also be
-    # where an end-of-turn / dispatch ACTION fires before branching — that is
-    # fine, label the action on the outgoing edges. The diamond reads as "decide
-    # here" either way; see state-machines.md ("Junctions and action points").
-    shape: diamond
-    style: { fill: "#fff1f2"; stroke: "#e11d48"; stroke-width: 2; font-color: "#881337" }
-  }
-  composite: {
-    # A composite state that contains a nested machine.
-    style: { fill: "#ffffff"; stroke: "#475569"; stroke-width: 2; font-color: "#1e293b"; border-radius: 12 }
-  }
+  # initial pseudostate — small solid dot (empty label)
+  start: { shape: circle; style: { fill: "#1e293b"; stroke: "#1e293b"; stroke-width: 2 } }
+  # a normal state (rounded box)
+  state: { style: { fill: "#ffffff"; stroke: "#475569"; stroke-width: 2; font-color: "#1e293b"; border-radius: 12 } }
+  # final state — solid dot with a double-border ring
+  final: { shape: circle; style: { fill: "#1e293b"; stroke: "#1e293b"; stroke-width: 2; double-border: true } }
+  # a branch / choice pseudostate (put the action on the outgoing edges)
+  choice: { shape: diamond; style: { fill: "#fff1f2"; stroke: "#e11d48"; stroke-width: 2; font-color: "#881337" } }
+  # a state containing a nested machine (container)
+  composite: { style: { fill: "#fafafa"; stroke: "#cbd5e1"; stroke-width: 1; font-color: "#475569"; border-radius: 12 } }
 }

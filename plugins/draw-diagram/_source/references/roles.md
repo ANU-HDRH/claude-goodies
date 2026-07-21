@@ -26,3 +26,19 @@ Edge roles (colour a connection):
 | `publish` | #8b0000 | `a -> b { class: publish }` | `a -->|L| b` then `class`/`linkStyle` | `Rel(a, b, "L", $tags="publish")` |
 | `serve` | #4682b4 | `a -> b { class: serve }` | `a -->|L| b` then `class`/`linkStyle` | `Rel(a, b, "L", $tags="serve")` |
 | `weak` | #94a3b8 | `a -> b { class: weak }` | `a -->|L| b` then `class`/`linkStyle` | `Rel(a, b, "L", $tags="weak")` |
+
+State-machine roles — one colour source, three grammars. D2 has no state grammar,
+so it imports `state-machine.d2` and tags nodes; Mermaid (`stateDiagram-v2`) and PlantUML
+(`state`) have native grammars where `[*]` draws the initial/final pseudostates, and these
+colours arrive via the generated `palette.mmd` / `palette.puml`.
+
+| Role | fill / stroke | D2 (`...@state-machine`) | Mermaid (`stateDiagram-v2`) | PlantUML (`state`) |
+|---|---|---|---|---|
+| `start` | #1e293b / #1e293b | `S { class: start }` | `class S start` | `state "S" as s <<start>>` |
+| `state` | #ffffff / #475569 | `S { class: state }` | `class S state` | `state "S" as s <<state>>` |
+| `final` | #1e293b / #1e293b | `S { class: final }` | `class S final` | `state "S" as s <<final>>` |
+| `choice` | #fff1f2 / #e11d48 | `S { class: choice }` | `class S choice` | `state "S" as s <<choice>>` |
+| `composite` | #fafafa / #cbd5e1 | `S { class: composite }` | `class S composite` | `state "S" as s <<composite>>` |
+
+`start` / `final` are D2-only styling (the dot and double-border dot); in Mermaid and
+PlantUML write `[*]` and the tool renders those pseudostates for you.
