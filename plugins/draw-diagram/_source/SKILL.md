@@ -134,13 +134,23 @@ time.
   sign-off, an optional `@source` provenance link, and a hash stamp so drift is
   detectable later. The look is not the dividing line; the rigor is.
 
-## Step 2: Author the D2 source
+## Step 2: Author the source
 
-Lash up a first draft of the `.d2` from the brief, then hand it back for the
+**Author in whichever format fits** — D2 (the home tool, shown throughout this
+step), Mermaid, or PlantUML. Whatever the format, the source file
+(`.d2`/`.mmd`/`.puml`) is the source of truth; you apply the shared house style
+from its generated palette (`style.d2`/`palette.d2` for D2, `palette.mmd` (or
+`mmdc -C palette.css`) for Mermaid, `palette.puml` for PlantUML — see
+`references/roles.md` for the one role vocabulary across all three); and the
+review, verify, and render steps below apply the same way. The D2 specifics that
+follow (import syntax, the container-scope trap, layout controls) are the worked
+example — the equivalent Mermaid/PlantUML mechanics live in `references/roles.md`
+and, for state charts, `references/state-machines.md`.
+
+Lash up a first draft of the source from the brief, then hand it back for the
 human to review and edit. The review is where the semantics get nailed down,
 so do not skip past it. Keep each diagram in its own small, single-purpose
-`.d2` file: smaller files are easier to edit precisely and produce legible
-diffs.
+file: smaller files are easier to edit precisely and produce legible diffs.
 
 Put the metadata in a header comment block at the top of the `.d2` so it
 travels with the source:

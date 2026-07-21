@@ -26,7 +26,8 @@ def _tokens():
         "~/.claude/plugins/cache/claude-goodies/draw-diagram/*/skills/draw-diagram/references/tokens.json")))
     for p in cands:
         if p and os.path.isfile(p):
-            return json.load(open(p, encoding="utf-8"))
+            with open(p, encoding="utf-8") as fh:
+                return json.load(fh)
     raise SystemExit("tokens.json not found — set $D2DIAG_TOKENS or install the draw-diagram skill")
 
 
