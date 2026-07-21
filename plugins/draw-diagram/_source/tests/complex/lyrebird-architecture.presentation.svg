@@ -1,0 +1,149 @@
+<!-- source-sha256: f28dc088c5afda4a94534dc0f1b7eb7c8d9b870bd9cbf929ce36e3935e705a6e -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="980" viewBox="0 0 1320 980" font-family="Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7"
+          markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+  </marker>
+  <marker id="arrowweak" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7"
+          markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+  </marker>
+  <filter id="sh" x="-20%" y="-20%" width="140%" height="160%">
+    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1e293b" flood-opacity="0.18"/>
+  </filter>
+</defs>
+<rect x="0" y="0" width="1320" height="980" fill="#ffffff"/>
+<text x="40" y="46" font-size="26" font-weight="700" fill="#1e293b">Lyrebird — architecture at a glance</text>
+<text x="40" y="88" font-size="13" font-weight="700" fill="#94a3b8" letter-spacing="1.5">USERS</text>
+<text x="40" y="218" font-size="13" font-weight="700" fill="#94a3b8" letter-spacing="1.5">INGRESS</text>
+<text x="40" y="338" font-size="13" font-weight="700" fill="#94a3b8" letter-spacing="1.5">FEATURE MODULES</text>
+<text x="1130" y="360" font-size="13" font-weight="700" fill="#94a3b8" letter-spacing="1.5">EXTERNAL</text>
+<text x="40" y="868" font-size="13" font-weight="700" fill="#94a3b8" letter-spacing="1.5">FOUNDATION</text>
+<path data-d2-edge="researcher->cloudflare" d="M336.0,116.0 C369.5,116.0 369.5,183.0 403.0,183.0" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="338.3" y="133.5" width="62.4" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="369.5" y="145.5" font-size="11.5" fill="#64748b" text-anchor="middle">signs in</text>
+<path data-d2-edge="participant->cloudflare" d="M524.0,116.0 C490.5,116.0 490.5,183.0 457.0,183.0" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="452.5" y="133.5" width="76.0" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="490.5" y="145.5" font-size="11.5" fill="#64748b" text-anchor="middle">opens link</text>
+<path data-d2-edge="cloudflare->foundation.platform" d="M436.0,237.0 C508.1,237.0 508.1,890.0 580.1,890.0" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="509.4" y="756.5" width="89.6" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="554.2" y="768.5" font-size="11.5" fill="#64748b" text-anchor="middle">sole ingress</text>
+<path data-d2-edge="researcher->projects" d="M300.0,116.0 C300.0,116.0 300.0,303.0 300.0,303.0" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="245.0" y="193.5" width="110.0" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="300.0" y="205.5" font-size="11.5" fill="#64748b" text-anchor="middle">authors studies</text>
+<path data-d2-edge="participant->interview" d="M560.0,116.0 C560.0,116.0 560.0,503.0 560.0,503.0" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="501.6" y="293.5" width="116.8" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="560.0" y="305.5" font-size="11.5" fill="#64748b" text-anchor="middle">conducts session</text>
+<path data-d2-edge="projects->scripts" d="M300.0,357.0 C300.0,357.0 300.0,403.0 300.0,403.0" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="275.6" y="364.0" width="48.8" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="300.0" y="376.0" font-size="11.5" fill="#64748b" text-anchor="middle">scopes</text>
+<path data-d2-edge="scripts->runs" d="M300.0,457.0 C300.0,457.0 300.0,503.0 300.0,503.0" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="255.2" y="464.0" width="89.6" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="300.0" y="476.0" font-size="11.5" fill="#64748b" text-anchor="middle">pins version</text>
+<path data-d2-edge="runs->interview" d="M375.0,530.0 C430.0,530.0 430.0,530.0 485.0,530.0" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="402.2" y="514.0" width="55.6" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="430.0" y="526.0" font-size="11.5" fill="#64748b" text-anchor="middle">deploys</text>
+<path data-d2-edge="scripts->testharness" d="M300.0,457.0 C300.0,457.0 300.0,613.0 300.0,613.0" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="251.8" y="519.0" width="96.4" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="300.0" y="531.0" font-size="11.5" fill="#64748b" text-anchor="middle">tests version</text>
+<path data-d2-edge="interview->evaluation" d="M560.0,557.0 C560.0,557.0 560.0,613.0 560.0,613.0" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="528.8" y="569.0" width="62.4" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="560.0" y="581.0" font-size="11.5" fill="#64748b" text-anchor="middle">reviewed</text>
+<path data-d2-edge="foundation.auth->cilogon" d="M796.0,890.0 C845.1,890.0 845.1,787.0 894.2,787.0" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="827.5" y="822.5" width="35.2" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="845.1" y="834.5" font-size="11.5" fill="#64748b" text-anchor="middle">OIDC</text>
+<path data-d2-edge="interview->bedrock" d="M635.0,517.5 C730.0,517.5 730.0,485.8 825.0,485.8" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="681.8" y="485.7" width="96.4" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="730.0" y="497.7" font-size="11.5" fill="#64748b" text-anchor="middle">LLM streaming</text>
+<path data-d2-edge="testharness->bedrock" d="M375.0,619.4 C600.0,619.4 600.0,496.0 825.0,496.0" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="545.0" y="541.7" width="110.0" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="600.0" y="553.7" font-size="11.5" fill="#64748b" text-anchor="middle">LLM-to-LLM eval</text>
+<path data-d2-edge="interview->ses" d="M635.0,540.4 C740.0,540.4 740.0,569.6 845.0,569.6" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="719.0" y="539.0" width="42.0" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="740.0" y="551.0" font-size="11.5" fill="#64748b" text-anchor="middle">email</text>
+<path data-d2-edge="interview->analytics" d="M544.7,557.0 C495.0,557.0 495.0,733.0 445.3,733.0" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrowweak)"/>
+<rect x="477.4" y="629.0" width="35.2" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="495.0" y="641.0" font-size="11.5" fill="#64748b" text-anchor="middle">cost</text>
+<path data-d2-edge="testharness->analytics" d="M329.2,667.0 C365.0,667.0 365.0,733.0 400.8,733.0" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrowweak)"/>
+<rect x="347.4" y="684.0" width="35.2" height="16" rx="3" fill="#ffffff" opacity="0.9"/>
+<text x="365.0" y="696.0" font-size="11.5" fill="#64748b" text-anchor="middle">cost</text>
+<g data-d2-node="foundation"><rect x="470.0" y="860.0" width="420" height="90" rx="12" fill="#fafafa" stroke="#cbd5e1" stroke-width="1.5"/><text x="484.0" y="882.0" font-size="14" font-weight="700" fill="#475569">Foundation</text></g>
+<g data-d2-node="researcher">
+<rect x="230.0" y="44.0" width="140" height="72" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="2" filter="url(#sh)"/>
+<circle cx="252.0" cy="72.0" r="8" fill="none" stroke="#475569" stroke-width="2"/>
+<path d="M241.0,96.0 a11,11 0 0 1 22,0" fill="none" stroke="#475569" stroke-width="2"/>
+<text x="322.0" y="85.0" font-size="13.5" font-weight="600" fill="#1e293b" text-anchor="middle">Researcher</text>
+</g>
+<g data-d2-node="participant">
+<rect x="485.0" y="44.0" width="150" height="72" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="2" filter="url(#sh)"/>
+<circle cx="507.0" cy="72.0" r="8" fill="none" stroke="#475569" stroke-width="2"/>
+<path d="M496.0,96.0 a11,11 0 0 1 22,0" fill="none" stroke="#475569" stroke-width="2"/>
+<text x="582.0" y="77.0" font-size="13.5" font-weight="600" fill="#1e293b" text-anchor="middle">Anonymous</text>
+<text x="582.0" y="93.0" font-size="13.5" font-weight="600" fill="#1e293b" text-anchor="middle">Participant</text>
+</g>
+<g data-d2-node="cloudflare">
+<rect x="355.0" y="183.0" width="150" height="54" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="2" stroke-dasharray="6 5" filter="url(#sh)"/>
+<text x="430.0" y="215.0" font-size="15" font-weight="600" fill="#334155" text-anchor="middle">Cloudflare</text>
+</g>
+<g data-d2-node="projects">
+<rect x="225.0" y="303.0" width="150" height="54" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<text x="300.0" y="335.0" font-size="15" font-weight="600" fill="#312e81" text-anchor="middle">projects</text>
+</g>
+<g data-d2-node="scripts">
+<rect x="225.0" y="403.0" width="150" height="54" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<text x="300.0" y="435.0" font-size="15" font-weight="600" fill="#312e81" text-anchor="middle">scripts</text>
+</g>
+<g data-d2-node="runs">
+<rect x="225.0" y="503.0" width="150" height="54" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<text x="300.0" y="535.0" font-size="15" font-weight="600" fill="#312e81" text-anchor="middle">runs</text>
+</g>
+<g data-d2-node="interview">
+<rect x="485.0" y="503.0" width="150" height="54" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<text x="560.0" y="535.0" font-size="15" font-weight="600" fill="#312e81" text-anchor="middle">interview</text>
+</g>
+<g data-d2-node="testharness">
+<rect x="225.0" y="613.0" width="150" height="54" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<text x="300.0" y="645.0" font-size="15" font-weight="600" fill="#312e81" text-anchor="middle">test-harness</text>
+</g>
+<g data-d2-node="evaluation">
+<rect x="485.0" y="613.0" width="150" height="54" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<text x="560.0" y="645.0" font-size="15" font-weight="600" fill="#312e81" text-anchor="middle">evaluation</text>
+</g>
+<g data-d2-node="analytics">
+<rect x="355.0" y="733.0" width="150" height="54" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<text x="430.0" y="765.0" font-size="15" font-weight="600" fill="#312e81" text-anchor="middle">analytics</text>
+</g>
+<g data-d2-node="bedrock">
+<rect x="825.0" y="438.0" width="190" height="64" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="2" stroke-dasharray="6 5" filter="url(#sh)"/>
+<text x="920.0" y="467.0" font-size="13" font-weight="600" fill="#334155" text-anchor="middle">AWS Bedrock</text>
+<text x="920.0" y="483.0" font-size="13" font-weight="600" fill="#334155" text-anchor="middle">(Claude Haiku/Sonnet)</text>
+</g>
+<g data-d2-node="ses">
+<rect x="845.0" y="553.0" width="150" height="54" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="2" stroke-dasharray="6 5" filter="url(#sh)"/>
+<text x="920.0" y="585.0" font-size="15" font-weight="600" fill="#334155" text-anchor="middle">AWS SES</text>
+</g>
+<g data-d2-node="cilogon">
+<rect x="845.0" y="733.0" width="150" height="54" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="2" stroke-dasharray="6 5" filter="url(#sh)"/>
+<text x="920.0" y="765.0" font-size="15" font-weight="600" fill="#334155" text-anchor="middle">CILogon</text>
+</g>
+<g data-d2-node="foundation.platform">
+<rect x="510.0" y="890.0" width="150" height="44" rx="6" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<text x="585.0" y="917.0" font-size="14" font-weight="600" fill="#312e81" text-anchor="middle">platform</text>
+</g>
+<g data-d2-node="foundation.auth">
+<rect x="700.0" y="890.0" width="150" height="44" rx="6" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<text x="775.0" y="917.0" font-size="14" font-weight="600" fill="#312e81" text-anchor="middle">auth</text>
+</g>
+<g data-d2-node="caption">
+<rect x="40" y="906" width="410" height="52" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+<text x="54" y="928" font-size="13" fill="#64748b">platform + auth are the foundation; those per-module edges are elided.</text>
+<text x="54" y="948" font-size="13" fill="#64748b">Dashed = an external system, or an async / out-of-band edge.</text>
+</g>
+<g>
+<line x1="1080" y1="880" x2="1114" y2="880" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1122" y="884" font-size="12" fill="#64748b">primary flow</text>
+<line x1="1080" y1="904" x2="1114" y2="904" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrowweak)"/>
+<text x="1122" y="908" font-size="12" fill="#64748b">async / external</text>
+</g>
+</svg>

@@ -1,0 +1,75 @@
+# @purpose:      How is Lyrebird architected at a glance — its modules, external services, and users, and how they interact?
+# @audience:     Engineers onboarding to Lyrebird (mid-level)
+# @out-of-scope: Deployment/infra topology, DB table schemas, data-flow sequences, ADR references, build-order rationale, per-module feature lists
+# @tier:         governed
+# @source:       references/lyrebird_architecture.md
+
+...@../../references/style
+
+direction: down
+
+# --- Users ---------------------------------------------------------------
+researcher:  Researcher              { class: actor }
+participant: Anonymous Participant   { class: actor }
+
+# --- Feature modules -----------------------------------------------------
+# Every module also depends on the foundation layer (platform + auth); those
+# edges are elided by convention — see the foundation note below.
+projects:     projects                { class: svc }
+scripts:      scripts                 { class: svc }
+runs:         runs                    { class: svc }
+interview:    interview               { class: svc }
+test_harness: test-harness            { class: svc }
+evaluation:   evaluation              { class: svc }
+analytics:    analytics               { class: svc }
+
+# --- Foundation layer (everything sits on this) --------------------------
+foundation: Foundation layer {
+  class: group
+  tooltip: Every feature module depends on platform + auth. Those edges are elided.
+  platform: platform { class: svc }
+  auth:     auth     { class: svc }
+}
+
+# --- External services ---------------------------------------------------
+bedrock:    AWS Bedrock\n(Claude Haiku / Sonnet, ap-southeast-2) { class: external }
+cilogon:    CILogon\n(OIDC)                                       { class: external }
+ses:        AWS SES\n(notification email)                        { class: external }
+cloudflare: Cloudflare\n(DNS · TLS · CDN · WAF · Tunnel)          { class: external }
+
+# --- User interactions ---------------------------------------------------
+researcher  -> cloudflare:  researcher surface
+participant -> cloudflare:  participant surface
+cloudflare  -> projects:    ingress (all HTTP)
+
+# --- Researcher authoring chronology -------------------------------------
+projects -> scripts:  scopes / owns scripts
+scripts  -> runs:     run pins a published script version
+runs     -> interview: session belongs to a run
+
+# --- Quality + review ----------------------------------------------------
+test_harness -> scripts:    evaluates published versions
+interview    -> evaluation: real sessions reviewed
+runs         -> evaluation: evaluation-mode flag
+
+# --- Analytics / cost recording ------------------------------------------
+interview    -> analytics: emits cost data        { class: weak }
+test_harness -> analytics: emits cost data        { class: weak }
+runs         -> analytics: per-project attribution { class: weak }
+
+# --- External-service interactions ---------------------------------------
+foundation.auth -> cilogon:  OIDC auth code flow   { class: weak }
+interview    -> bedrock:  streamed LLM inference
+test_harness -> bedrock:  LLM-to-LLM evaluation
+interview    -> ses:      completion / withdrawal email { class: weak }
+
+# --- Convention note -----------------------------------------------------
+note: |md
+  **Convention:** every feature module also
+  depends on the **foundation layer**
+  (`platform` + `auth`). Those per-module
+  edges are elided for legibility; only the
+  meaningful feature-to-feature, user, and
+  external-service interactions are drawn.
+  Dashed edges are async / cost / out-of-band.
+| { class: group; near: bottom-center; width: 360 }

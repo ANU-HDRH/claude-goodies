@@ -1,0 +1,22 @@
+# @purpose:      How does a user log in with a magic link?
+# @audience:     Engineers new to the auth service
+# @out-of-scope: Token rotation, rate limiting, error and abuse UX
+# @tier:         governed
+# @source:       (confected example — no upstream doc)
+
+...@../../../references/style
+
+user: User             { class: actor }
+app:  Web App          { class: svc }
+api:  Auth API         { class: svc }
+mail: Email Provider   { class: external }
+db:   Token Store      { class: store }
+
+user -> app:  1. enter email
+app  -> api:  2. request link
+api  -> db:   3. store token
+api  -> mail: 4. send link      { class: weak }
+user -> app:  5. click link
+app  -> api:  6. verify token
+api  -> db:   7. check + consume
+api  -> app:  8. issue session

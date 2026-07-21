@@ -1,0 +1,9 @@
+{
+  "name": "draw-diagram",
+  "version": "1.0.0",
+  "description": "Author, iterate on, and render diagrams as diagram-as-code (D2, Mermaid, or PlantUML) unified by one shared house style, shipping a checked, regenerable SVG as the deliverable.",
+  "author": {
+    "name": "ANU HDRH",
+    "url": "https://github.com/ANU-HDRH"
+  }
+}

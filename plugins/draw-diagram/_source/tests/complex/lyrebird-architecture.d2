@@ -1,0 +1,69 @@
+# @purpose:      How is Lyrebird architected at a glance — its modules, external
+#                services, and users, and how they interact?
+# @audience:     Engineers onboarding to Lyrebird (mid-level).
+# @out-of-scope: Deployment/infra topology, DB table schemas, data-flow sequences,
+#                ADR references, build-order rationale, per-module feature lists.
+# @tier:         governed
+# @source:       ../../references/lyrebird_architecture.md (relative to this file;
+#                tree is not a git repo, so no repo-root anchor is used)
+
+...@../../references/style
+
+direction: down
+
+# --- users -----------------------------------------------------------------
+researcher:  Researcher            { class: actor }
+participant: "Anonymous\nParticipant" { class: actor }
+
+# --- ingress (external) ----------------------------------------------------
+cloudflare: Cloudflare { class: external }
+
+# --- feature modules (study chronology, top to bottom) ---------------------
+projects:     projects     { class: svc }
+scripts:      scripts      { class: svc }
+runs:         runs         { class: svc }
+interview:    interview    { class: svc }
+testharness:  test-harness { class: svc }
+evaluation:   evaluation   { class: svc }
+analytics:    analytics    { class: svc }
+
+# --- external services -----------------------------------------------------
+bedrock: "AWS Bedrock\n(Claude Haiku/Sonnet)" { class: external }
+ses:     AWS SES { class: external }
+cilogon: CILogon { class: external; near: bottom-left }
+
+# --- foundation layer (every module sits on these; per-module edges elided) -
+foundation: Foundation { class: group
+  near: bottom-center
+  platform: platform { class: svc }
+  auth:     auth     { class: svc }
+}
+
+# --- user entry ------------------------------------------------------------
+researcher  -> cloudflare: signs in
+participant -> cloudflare: opens link
+cloudflare  -> foundation.platform: sole ingress
+
+researcher  -> projects: authors studies
+participant -> interview: conducts session
+
+# --- study lifecycle spine -------------------------------------------------
+projects -> scripts: scopes
+scripts  -> runs:    pins version
+runs     -> interview: deploys
+scripts  -> testharness: tests version
+
+# --- review & reporting ----------------------------------------------------
+interview -> evaluation: real sessions reviewed
+
+# --- external service interactions -----------------------------------------
+foundation.auth -> cilogon: OIDC
+interview   -> bedrock: LLM streaming
+testharness -> bedrock: LLM-to-LLM eval
+interview   -> ses: completion / withdrawal email
+
+# --- cost recording (async, retrofit) --------------------------------------
+interview   -> analytics: cost { class: weak }
+testharness -> analytics: cost { class: weak }
+
+caption: "platform + auth are the foundation; those per-module edges are elided.\nDashed = an external system, or an async / out-of-band edge." { class: caption; near: top-left }
