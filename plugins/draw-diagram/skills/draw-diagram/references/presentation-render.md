@@ -93,9 +93,20 @@ includes and the generated palette. Include `C4_Container.puml` FIRST (it define
 the macros, shapes, layout, and `AddElementTag`), then `palette.c4.puml` AFTER (it
 supplies the house-colour tags):
 
+**The include path is relative to the diagram, so it changes with where the diagram
+lives.** The vendored C4 sits in the skill's own `references/c4/` AND in a project's
+house-style folder; import from whichever the diagram is near:
+- a diagram in the skill's `references/` (or rendered with `-Dplantuml.include.path`
+  pointing there): `!include c4/C4_Container.puml`, `!include palette.c4.puml`
+- a diagram in a repo whose house style is `patterns/_style/` (the common case):
+  `!include ../_style/c4/C4_Container.puml`, `!include ../_style/palette.c4.puml`
+
+The example below uses the skill-relative form; swap in `../_style/…` for a repo diagram.
+
 ```
 @startuml
 !include c4/C4_Container.puml      ' vendored; render with -DRELATIVE_INCLUDE=1 for offline
+                                   ' (repo diagram: !include ../_style/c4/C4_Container.puml)
 !include palette.c4.puml           ' generated house-colour tags (AddElementTag); include AFTER C4
 HIDE_STEREOTYPE()
 LAYOUT_LEFT_RIGHT()

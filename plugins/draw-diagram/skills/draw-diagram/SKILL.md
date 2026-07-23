@@ -398,6 +398,18 @@ the default — and you ASK before taking it.** Do not jump straight to a crafte
 or a generator: the native `.d2`/`.puml`/`.mmd`, once styled from the house palette,
 is enough for most diagrams and stays fully diagram-as-code.
 
+**PlantUML has a middle rung — reach for C4-PlantUML before a generator.** When a
+PlantUML diagram needs the richer look (coloured box+person-icon actor-cards,
+cylinders, nested box-in-box boundaries), C4-PlantUML draws all of it NATIVELY with
+`dot`: `Person()` is the actor-card, `Container()`/`ContainerDb()` are cards/cylinders,
+`System_Boundary` nests. Converting a plain-`actor` `.puml` to C4-PlantUML, tagged
+from the shared `palette.c4.puml`, usually reaches the full house look with zero
+hand-crafting — so try it before escalating to a `.py` generator. Include
+`C4_Container.puml` first, then `palette.c4.puml`, tag elements with `$tags`, and
+render with `-DRELATIVE_INCLUDE=1` (uses the vendored C4, offline). Full worked
+example, the include-path note (skill vs repo), and `$tags` guidance:
+`references/presentation-render.md` ("C4-PlantUML worked example").
+
 D2's own render does have a lower ceiling — composition, visual hierarchy,
 annotation, illustration, and even sequence ordering are things styling alone won't
 buy. *When* the native render genuinely can't reach the target (and only then), have
