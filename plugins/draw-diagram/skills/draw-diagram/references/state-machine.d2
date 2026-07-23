@@ -1,0 +1,22 @@
+# GENERATED from tokens.json by build-style.py — do not hand-edit.
+# D2 has no state-machine grammar, so a state machine is a general graph that reads
+# as one by applying these classes. Spread this in ALONGSIDE the house style:
+#   ...@style
+#   ...@state-machine
+# then: initial `i: "" { class: start }`, a state `S { class: state }`, a choice
+# `c: "" { class: choice }`, final `done: DONE { class: final }`, and containers `{ class: composite }`.
+# Mermaid (stateDiagram-v2) and PlantUML (state) instead use their native `[*]` for
+# initial/final and take these same colours from palette.mmd / palette.puml.
+
+classes: {
+  # initial pseudostate — small solid dot (empty label)
+  start: { shape: circle; style: { fill: "#1e293b"; stroke: "#1e293b"; stroke-width: 2 } }
+  # a normal state (rounded box)
+  state: { style: { fill: "#ffffff"; stroke: "#475569"; stroke-width: 2; font-color: "#1e293b"; border-radius: 12 } }
+  # final state — solid dot with a double-border ring
+  final: { shape: circle; style: { fill: "#1e293b"; stroke: "#1e293b"; stroke-width: 2; double-border: true } }
+  # a branch / choice pseudostate (put the action on the outgoing edges)
+  choice: { shape: diamond; style: { fill: "#fff1f2"; stroke: "#e11d48"; stroke-width: 2; font-color: "#881337" } }
+  # a state containing a nested machine (container)
+  composite: { style: { fill: "#fafafa"; stroke: "#cbd5e1"; stroke-width: 1; font-color: "#475569"; border-radius: 12 } }
+}

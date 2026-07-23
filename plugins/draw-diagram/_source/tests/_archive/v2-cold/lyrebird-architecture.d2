@@ -1,0 +1,80 @@
+# @purpose:      How is Lyrebird architected at a glance — its Bower modules, the
+#                external services, and the user types, and how they interact?
+# @audience:     Engineers onboarding to Lyrebird (mid-level, technically literate).
+# @out-of-scope: Deployment/infra topology (Cloudflare->VM->Postgres runtime view),
+#                DB table schemas, step-by-step data-flow sequences, ADR references,
+#                build-order rationale, per-module feature lists.
+# @tier:         governed
+# @source:       references/lyrebird_architecture.md
+
+...@../../references/style
+
+direction: down
+
+# --- Users ----------------------------------------------------------------
+researcher: Researcher { class: actor }
+participant: Anonymous Participant { class: actor }
+
+# --- Feature modules ------------------------------------------------------
+# platform + auth are the foundation layer (every module depends on them); per
+# the convention stated in the caption, those edges are elided. The edges below
+# are the meaningful feature-module relationships only.
+projects: projects { class: svc }
+scripts: scripts { class: svc }
+runs: runs { class: svc }
+interview: interview { class: svc }
+test_harness: test-harness { class: svc }
+evaluation: evaluation { class: svc }
+analytics: analytics { class: svc }
+
+# --- Foundation layer (everything sits on this) ---------------------------
+foundation: Foundation layer { class: group
+  platform: platform { class: svc }
+  auth: auth { class: svc }
+}
+
+# --- External services ----------------------------------------------------
+bedrock: AWS Bedrock { class: external }
+cilogon: CILogon { class: external }
+ses: AWS SES { class: external }
+cloudflare: Cloudflare { class: external }
+
+# --- User interactions ----------------------------------------------------
+researcher -> projects: manage projects
+researcher -> scripts: author scripts
+researcher -> runs: deploy runs
+researcher -> test_harness: run evaluations
+researcher -> evaluation: review sessions
+researcher -> analytics: view metrics & cost
+participant -> interview: conduct session
+
+# --- Feature-module relationships (cross-module reads/deps) ----------------
+scripts -> projects: scoped to project
+runs -> projects: scoped to project
+runs -> scripts: pins published version
+interview -> runs: session belongs to run
+interview -> scripts: reads pinned version
+test_harness -> scripts: tests published version
+evaluation -> interview: comments on sessions & turns
+evaluation -> runs: evaluation-mode flag
+analytics -> runs: per-project cost attribution
+# cost-recording API: interview & test-harness emit cost into analytics
+interview -> analytics: emit cost records { class: weak }
+test_harness -> analytics: emit cost records { class: weak }
+
+# --- External-service interactions ----------------------------------------
+foundation.auth -> cilogon: OIDC researcher auth
+interview -> bedrock: LLM inference (Claude)
+test_harness -> bedrock: LLM-to-LLM inference
+interview -> ses: completion & withdrawal email
+researcher -> cloudflare: ingress { class: weak }
+participant -> cloudflare: ingress { class: weak }
+
+# --- Convention caption ---------------------------------------------------
+note: |md
+  **Every module depends on `platform` and `auth`** (the foundation layer);
+  those edges are elided. Dashed = external or async/out-of-band.
+| {
+  class: caption
+  near: bottom-center
+}
