@@ -17,10 +17,15 @@ PlantUML, and D2**:
   `palette.d2`, `style.d2`, `palette.mmd`, `palette.css`, `palette.puml`,
   `palette.c4.puml` — plus `roles.md`, the cross-tool cheat sheet. Colour is
   exchangeable across the three tools; shape falls back per tool (see `roles.md`).
+  C4-PlantUML is **vendored** under `references/c4/`, so C4 renders offline
+  (`-DRELATIVE_INCLUDE=1`); `references/mermaid-elk.json` supplies the Mermaid elk
+  layout config.
 - **Format-first workflow.** Improve the diagram in its own tool with the house style
   and ship that if it's good enough; escalate to a crafted **presentation render** (a
-  `presentation.py` generator, its glyphs shared via `references/glyphs.py`) only when
-  the native render can't reach the bar — and only after asking.
+  `presentation.py` generator, its shapes shared via `references/glyphs.py` — person,
+  card, `c4_box`, hexagon, cloud, actor, plus role-coloured edges) only when the native
+  render can't reach the bar — and only after asking. (For PlantUML, C4-PlantUML often
+  reaches the look natively first — the middle rung before a generator.)
 - **Two guards.** `check-presentation.py` proves a crafted SVG depicts exactly the
   source's nodes/edges (D2, PlantUML, and Mermaid sources); `freshness.py` stamps a
   content-hash manifest so drift is detectable.
@@ -62,7 +67,21 @@ plugins/draw-diagram/
    `build.sh` copies `SKILL.md` + the non-dev-only `references/` and is the
    single source of truth for what ships. (Adjust the script to emit straight
    into `../skills/draw-diagram/` if you prefer a one-step build.)
-3. Commit both `_source/` and the rebuilt `skills/draw-diagram/`.
+3. Commit both `_source/` and the rebuilt `skills/draw-diagram/` (this is the
+   **upstream** update).
+4. **Update a consuming project** (e.g. a repo that vendors the skill under
+   `.claude/skills/draw-diagram/`): re-vendor the shipped subset into it, then
+   commit there.
+
+   ```bash
+   _source/build.sh /path/to/consuming-repo   # installs into <repo>/.claude/skills/draw-diagram/
+   ```
+
+   The README is **not** shipped (build.sh copies only `SKILL.md` + `references/`),
+   so a consuming repo never carries this operator guide — it reads it here. If the
+   project keeps its own house style (its own `tokens.json` under e.g.
+   `patterns/_style/`), also regenerate its palettes after re-vendoring:
+   `python3 <repo>/.claude/skills/draw-diagram/references/build-style.py --tokens <repo>/patterns/_style/tokens.json <repo>/patterns/_style/`.
 
 The split keeps tests/fixtures and dev-only references out of what users install,
 while keeping the full source tracked in this repo.

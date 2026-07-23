@@ -523,8 +523,8 @@ format suffix so each file's provenance is obvious at a glance:
 <name>.<fmt>                   # original semantic source (LEFT UNTOUCHED)
 <name>-improved.<fmt>          # improved source (colour-free)  (d2 / mmd / puml)
 <name>-improved.<fmt>.svg      # format-improved NATIVE render (rendered by the tool)
-<name>.py                      # presentation generator     (only if one was used)
-<name>.py.svg                  # presentation render        (crafted SVG the generator emits)
+<name>-improved.<fmt>.py       # presentation generator     (only if one was used)
+<name>-improved.<fmt>.py.svg   # presentation render        (crafted SVG the generator emits)
 ```
 
 So a D2 unit is `architecture.d2` → `architecture-improved.d2` →

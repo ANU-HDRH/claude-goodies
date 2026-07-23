@@ -123,23 +123,55 @@ green in D2, Mermaid, and PlantUML). **Shape is set at the node** in Mermaid/Pla
 `person` or `queue`, PlantUML has no `diamond` element — so `roles.md` gives the
 per-tool node syntax and names the fallbacks.
 
+### Offline C4-PlantUML and elk layout (vendored)
+
+For the richer PlantUML look — coloured actor-cards, cylinders, nested box-in-box —
+`references/c4/` **vendors C4-PlantUML** (the `C4_Container`/`C4_Context`/`C4` include
+chain + `LICENSE`/`VENDOR.md`). A diagram `!include`s `c4/C4_Container.puml` then
+`palette.c4.puml` and renders with `-DRELATIVE_INCLUDE=1`, so the C4 files resolve
+locally and the render needs **no network**. `palette.c4.puml` also retags the C4
+stock element defaults to house-neutral, so an untagged element renders neutral, not
+C4-blue. (In a project, the same files are vendored under the house-style folder, so
+a repo diagram imports `../_style/c4/…`.) `references/mermaid-elk.json` is the Mermaid
+elk-renderer config (`mmdc -c mermaid-elk.json`) for when dagre's layout is too
+tangled — kept as a file so no `%%{init}%%` directive sits in the `.mmd`. Reaching for
+C4 vs a `.py` generator is covered in `references/presentation-render.md`.
+
 ### Presentation generators share their glyphs
 
-When a presentation render is produced by a `.py` generator, its SVG primitives —
-the person icon, cards, cylinders, `[system]` boundaries, edges, the auto-sized
-legend — come from **one shared library, [`references/glyphs.py`](references/glyphs.py)**,
-which pulls colour/font from the same `tokens.json`. A generator adds the skill's
-`references/` to `sys.path` and does `from glyphs import …`, so the crafted look
-(especially the human icon) is identical across every presentation render and changes
-in one place — the same one-source discipline as `tokens.json` for colour.
+When a presentation render is produced by a `.py` generator, **every shape and edge
+comes from one shared library, [`references/glyphs.py`](references/glyphs.py)** (which
+pulls colour/font from the same `tokens.json`) — a generator never hand-rolls its own
+`<path>` cloud or `<polygon>` hexagon, the same drift risk as hard-coding hex. Import
+what you need (`from glyphs import …`); the primitives are:
+
+- **Nodes:** `card` (the roomy left-aligned house card; `datastore`→cylinder,
+  `actor`→person icon inside, `stack`→offset copies for a `multiple`/artefact,
+  `dash`→external), `c4_box` (the compact centre-aligned C4 card, `datastore`/`stack`
+  too), `hexagon` (process), `cloud` (infra), `actor_node` (standalone outline actor),
+  `boundary` (`[system]` box), `person` (the icon), `legend` (auto-sized), `text`.
+- **Edges:** `edge(…, role=)` takes an edge role (`human`/`publish`/`serve`/`flow`/…)
+  and pulls its colour, width, dash and label colour from `tokens.json`; `markers([roles])`
+  emits the matching arrowheads (fixed size — they don't balloon on bold edges).
+
+Colour is passed IN as a resolved style dict (`TOK["roles"][name]` or
+`TOK["categories"][catN]`); glyphs never maps domains itself. Shape = kind (hexagon =
+process, cloud = infra, cylinder = store, stack = multiple); the crafted look —
+especially the human icon — is identical across every render and changes in one place.
+If a shape you need is missing, ADD it to `glyphs.py` (and re-vendor) rather than
+inlining it in one generator.
 
 ### Keeping both a native and a presentation render
 
-When you keep both, name them by the source's format so provenance is obvious:
-`<name>.improved.<fmt>.svg` for the format-improved **native** render (the tool draws
-it) and `<name>.py.svg` for the **presentation** render (the crafted SVG). The
-generator writes `<name>.py.svg` and must never overwrite the source's own `<name>.svg`
-or the native `.improved.<fmt>.svg`.
+When you keep both, name every file with the **format infix** so a diagram's
+D2/Mermaid/PlantUML variants coexist and each records its tool:
+`<name>-improved.<fmt>` is the improved (colour-free) source, `<name>-improved.<fmt>.svg`
+is the format-improved **native** render (the tool draws it), `<name>-improved.<fmt>.py`
+is the presentation generator, and `<name>-improved.<fmt>.py.svg` is the **presentation**
+render it emits. The skill never overwrites the original `<name>.<fmt>` (or its render)
+and never deletes/renames the user's files — it advises the manual rename instead.
+(PlantUML strips the `.puml` on output, so its native render must be renamed from
+`<name>-improved.svg` to `<name>-improved.puml.svg`.)
 
 ---
 
@@ -258,6 +290,12 @@ references/
   roles.md                        # GENERATED — cross-tool role cheat sheet (per-tool node syntax)
   style.md                        # the house visual language, documented
   glyphs.py                       # shared SVG glyph library for presentation .py generators
+                                  #   (person, card, c4_box, hexagon, cloud, actor_node,
+                                  #    boundary, legend + role-coloured edge/markers)
+  c4/                             # VENDORED C4-PlantUML (C4_Container/Context/… + LICENSE)
+                                  #   — !include + -DRELATIVE_INCLUDE=1 renders C4 offline
+  mermaid-elk.json                # Mermaid elk-renderer config (mmdc -c) — keeps the .mmd clean
+  state-machine.d2                # GENERATED — D2 state-machine class vocabulary (...@state-machine)
   presentation-render.md          # the format-first workflow + AI-presentation contract, check, iteration
   check-presentation.py           # semantic-equivalence guard — D2, PlantUML AND Mermaid sources
   freshness.py                    # content-hash freshness guard (stamp + check)
