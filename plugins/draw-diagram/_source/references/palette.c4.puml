@@ -1,6 +1,18 @@
 ' GENERATED from tokens.json by build-style.py — do not hand-edit.
 ' With C4_Container.puml included, !include this then pass $tags="cat1" to Person()/Container()/etc.
 ' C4 Person() draws a coloured BOX WITH A PERSON ICON inside — the house 'actor-card' form, natively.
+' --- house defaults for UNtagged elements (override C4 stock blue) ---
+UpdateElementStyle("person", $bgColor="#f1f5f9", $fontColor="#1e293b", $borderColor="#475569")
+UpdateElementStyle("system", $bgColor="#ffffff", $fontColor="#0f172a", $borderColor="#94a3b8")
+UpdateElementStyle("container", $bgColor="#ffffff", $fontColor="#0f172a", $borderColor="#94a3b8")
+UpdateElementStyle("component", $bgColor="#ffffff", $fontColor="#0f172a", $borderColor="#94a3b8")
+UpdateElementStyle("external_person", $bgColor="#eceff3", $fontColor="#374151", $borderColor="#6b7280")
+UpdateElementStyle("external_system", $bgColor="#eceff3", $fontColor="#374151", $borderColor="#6b7280")
+UpdateElementStyle("external_container", $bgColor="#eceff3", $fontColor="#374151", $borderColor="#6b7280")
+UpdateElementStyle("external_component", $bgColor="#eceff3", $fontColor="#374151", $borderColor="#6b7280")
+UpdateBoundaryStyle($bgColor="#fafafa", $fontColor="#475569", $borderColor="#cbd5e1")
+UpdateRelStyle($textColor="#2f4b7c", $lineColor="#2f4b7c")
+' --- role/domain tags (pass via $tags="..."; these are the intended, tagged path) ---
 AddElementTag("cat1", $bgColor="#cce5ff", $fontColor="#1f4b6e", $borderColor="#4682b4")
 AddElementTag("cat2", $bgColor="#ffe4e1", $fontColor="#7a0e0e", $borderColor="#8b0000")
 AddElementTag("cat3", $bgColor="#c9f7c9", $fontColor="#0b5c0b", $borderColor="#1f8b1f")

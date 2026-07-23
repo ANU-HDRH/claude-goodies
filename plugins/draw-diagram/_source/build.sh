@@ -48,7 +48,7 @@ for f in references/*; do
     echo "  skip  references/$base (dev-only)"
     continue
   fi
-  cp "$f" "$OUT/references/$base"
+  cp -R "$f" "$OUT/references/$base"
   echo "  add   references/$base"
 done
 

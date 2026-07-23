@@ -46,8 +46,8 @@ Three commitments drive everything below:
 ## Step 0: Preflight
 
 Check the dependencies up front, in one pass, and report everything missing in
-a single hand-off rather than discovering gaps one render at a time. Two things
-matter:
+a single hand-off rather than discovering gaps one render at a time. The core
+things that matter:
 
 - **`d2`** (`command -v d2`) — required for everything. A hard stop if missing.
 - **An SVG-to-PNG rasterizer** (`command -v rsvg-convert resvg inkscape`) —
@@ -70,6 +70,14 @@ matter:
   `headless_shell --headless --disable-gpu --force-device-scale-factor=2 --screenshot=/tmp/look.png --window-size=W,H "file://$PWD/crafted.svg"` —
   so you can eyeball crafted SVGs with nothing new installed. Probe for it before
   asking the user to install anything.
+- **Alternate-format renderers** (only when authoring/improving in that format,
+  not hard stops for D2 work): **`mmdc`** (`command -v mmdc`, or `npx -y
+  @mermaid-js/mermaid-cli`) for Mermaid; **`plantuml`** or **`java`** (`command -v
+  plantuml java`) for PlantUML; and **Graphviz `dot`** (`command -v dot`), needed
+  for PlantUML C4 layout. PlantUML auto-detects `dot` on PATH, so no env var is
+  usually needed; only if it can't find it, set `export GRAPHVIZ_DOT="$(command -v
+  dot)"` (never a hardcoded path, which is machine-specific). Without `dot`,
+  PlantUML falls back to Smetana, which lays out C4/nested diagrams noticeably worse.
 - **`uv`** (`command -v uv`) — recommended, not a hard stop. When a presentation
   render is produced by a generator script (`presentation.py`, see Step 5),
   `uv run presentation.py` pins the Python interpreter so it behaves identically
@@ -139,8 +147,8 @@ time.
 **Author in whichever format fits** — D2 (the home tool, shown throughout this
 step), Mermaid, or PlantUML. Whatever the format, the source file
 (`.d2`/`.mmd`/`.puml`) is the source of truth; you apply the shared house style
-from its generated palette (`style.d2`/`palette.d2` for D2, `palette.mmd` (or
-`mmdc -C palette.css`) for Mermaid, `palette.puml` for PlantUML — see
+from its generated palette (`style.d2`/`palette.d2` for D2, `mmdc -C palette.css`
+for Mermaid (colour stays out of the `.mmd`), `palette.puml` for PlantUML; see
 `references/roles.md` for the one role vocabulary across all three); and the
 review, verify, and render steps below apply the same way. The D2 specifics that
 follow (import syntax, the container-scope trap, layout controls) are the worked
@@ -489,30 +497,42 @@ Rules that keep this honest:
   regenerate it in the same step that emits the SVG so the two never diverge.
   Don't try to stamp PNGs; their freshness rides on the SVG's.
 
-### Naming the two renders — by source format, when you keep both
+### Naming the improved source and its renders
 
-The format-first workflow (see `references/presentation-render.md`) routinely
-produces **two** rendered outputs for one source: the *format-improved native
-render* (the tool draws it — `d2`, `plantuml`, `mmdc`) and the *presentation
-render* (a crafted SVG, usually from a `.py` generator). When you keep both,
-role-names (`presentation.svg`) don't distinguish them — name by the source's
-own format suffix so each file's provenance is obvious at a glance:
+Improvement **never overwrites the semantic source and never edits it in place.**
+It writes a SEPARATE improved source next to the original, named
+`<name>-improved.<fmt>`, and renders that to `<name>-improved.<fmt>.svg`. The
+original `<name>.<fmt>` (and its SVG) is left untouched. The improved source stays
+**colour-free**: colour arrives at the render step (Mermaid `-C palette.css`;
+PlantUML/D2 palette include), never baked into the file. Name by the source's own
+format suffix so each file's provenance is obvious at a glance:
 
 ```
-<name>.<fmt>              # semantic source           (architecture.d2, model.puml, model.mmd)
-<name>.improved.<fmt>.svg # format-improved NATIVE render (rendered by the tool itself)
-<name>.py                 # presentation generator     (only if one was used)
-<name>.py.svg             # presentation render        (the crafted SVG the generator emits)
+<name>.<fmt>                   # original semantic source (LEFT UNTOUCHED)
+<name>-improved.<fmt>          # improved source (colour-free)  (d2 / mmd / puml)
+<name>-improved.<fmt>.svg      # format-improved NATIVE render (rendered by the tool)
+<name>.py                      # presentation generator     (only if one was used)
+<name>.py.svg                  # presentation render        (crafted SVG the generator emits)
 ```
 
-So a D2 unit is `architecture.d2` → `architecture.improved.d2.svg` (native) +
-`architecture.py` → `architecture.py.svg` (presentation); a PlantUML unit is
-`model.puml` → `model.improved.puml.svg` + `model.puml.py` → `model.puml.py.svg`.
-The generator writes `<name>.py.svg` and **must never overwrite the source's own
-`<name>.svg`** or the native `<name>.improved.<fmt>.svg` — three distinct files, three
-distinct roles. Both SVGs get stamped with `freshness.py`; the native render's
-manifest is just its source + shared style, the presentation's also includes the
-generator. This is the on-disk form of "ship both and let the reader choose."
+So a D2 unit is `architecture.d2` → `architecture-improved.d2` →
+`architecture-improved.d2.svg`; a Mermaid unit is `model.mmd` →
+`model-improved.mmd` → `mmdc -C <style>/palette.css` → `model-improved.mmd.svg`; a
+PlantUML unit is `model.puml` → `model-improved.puml` → `model-improved.puml.svg`.
+**Keep the format infix `<name>-improved.<fmt>.svg`** so a diagram's D2/Mermaid/
+PlantUML renders coexist and each records its tool. Mermaid keeps it via `-o
+<name>-improved.mmd.svg`; D2 via `d2 <name>-improved.d2 <name>-improved.d2.svg`;
+PlantUML strips the `.puml` and writes `<name>-improved.svg` by default, so
+**rename it** to `<name>-improved.puml.svg`.
+The native render and the original source are **distinct files with distinct
+roles**, and the skill never deletes or renames the user's files. SVGs get stamped
+with `freshness.py`; the native render's manifest is its improved source + shared
+style, the presentation's also includes the generator.
+
+**After producing `<name>-improved.<fmt>.svg`, advise the user** (don't do it for
+them): "If you're happy with the improved render, rename `<name>-improved.<fmt>.svg`
+to your ship name (e.g. `<slot>.svg`) and delete the original yourself; that step
+is manual and yours."
 
 ### Split ship/source layout (when a project configures it)
 

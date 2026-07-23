@@ -171,6 +171,29 @@ write("palette.puml", "\n".join(pu) + "\n")
 c4 = ["' GENERATED from tokens.json by build-style.py — do not hand-edit.",
       "' With C4_Container.puml included, !include this then pass $tags=\"cat1\" to Person()/Container()/etc.",
       "' C4 Person() draws a coloured BOX WITH A PERSON ICON inside — the house 'actor-card' form, natively."]
+
+# House DEFAULTS: retag the C4 stock element styles so an UNTAGGED element renders
+# in house colours (neutral card, house actor, house external, house group boundary,
+# house edge) instead of stock C4 blue. UpdateElementStyle overrides the base style
+# a C4_* file registered; it is included AFTER C4_Container.puml so these win.
+# Tagging is still the FLOOR — these defaults only catch elements you forgot to tag.
+actor_f, actor_s, actor_t = rcol(roles["actor"]) if "actor" in roles else (neu["faint"], neu["border"], neu["ink"])
+group_f, group_s, group_t = rcol(roles["group"]) if "group" in roles else (neu["faint"], neu["border"], neu["muted"])
+c4.append("' --- house defaults for UNtagged elements (override C4 stock blue) ---")
+# base element default → house neutral card
+for base in ("person",):
+    c4.append(f'UpdateElementStyle("{base}", $bgColor="{actor_f}", $fontColor="{actor_t}", $borderColor="{actor_s}")')
+for base in ("system", "container", "component"):
+    c4.append(f'UpdateElementStyle("{base}", $bgColor="{neu["surface"]}", $fontColor="{neu["ink"]}", $borderColor="{neu["border"]}")')
+# external elements → tokens.external
+for base in ("external_person", "external_system", "external_container", "external_component"):
+    c4.append(f'UpdateElementStyle("{base}", $bgColor="{ext["fill"]}", $fontColor="{ext["text"]}", $borderColor="{ext["stroke"]}")')
+# boundaries → house group colours (bg default transparent; border+font carry the look)
+c4.append(f'UpdateBoundaryStyle($bgColor="{group_f}", $fontColor="{group_t}", $borderColor="{group_s}")')
+# relationships → house neutral edge
+c4.append(f'UpdateRelStyle($textColor="{neu["edge"]}", $lineColor="{neu["edge"]}")')
+c4.append("' --- role/domain tags (pass via $tags=\"...\"; these are the intended, tagged path) ---")
+
 for n, c in cats.items():
     c4.append(f'AddElementTag("{n}", $bgColor="{c["fill"]}", $fontColor="{c["text"]}", $borderColor="{c["stroke"]}")')
 c4.append(f'AddElementTag("external", $bgColor="{ext["fill"]}", $fontColor="{ext["text"]}", $borderColor="{ext["stroke"]}")')

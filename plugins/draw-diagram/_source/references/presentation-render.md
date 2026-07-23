@@ -21,16 +21,24 @@ artifacts where the theme genuinely can't get close.
 When you already have a `.mmd`, `.puml`, or `.d2`, **improve it in its own format
 first** — don't jump to a crafted SVG, and don't convert tools. Each renderer has
 native styling; drive it from the shared house palette (`build-style.py` emits a
-palette for every tool from the one `tokens.json`, so all three stay in sync):
+palette for every tool from the one `tokens.json`, so all three stay in sync).
 
-- **Mermaid** → `classDef` + `class n cat1`. Mermaid has no import, so apply the house
-  palette one of two ways: **(a)** paste the generated `palette.mmd` `classDef` block into
-  the `.mmd` (self-contained, renders anywhere including GitHub inline), or **(b)** keep the
-  `.mmd` colour-free and pass the generated stylesheet at render time —
-  `mmdc -C <skill>/references/palette.css` — where the nodes only carry `class n cat1`
-  (subgraphs `class s frame` / `frame-cat1`) and `palette.css` supplies the look. Both come
-  from the one `tokens.json`; (a) is the default because it needs no external file at view
-  time, (b) keeps colour fully out of the source. **Render with an explicit solid
+**Never overwrite the semantic source, and keep the source colour-free.**
+Improvement writes a SEPARATE improved source alongside the original, named
+`<name>-improved.<fmt>` (D2: `<name>-improved.d2`; Mermaid: `<name>-improved.mmd`;
+PlantUML: `<name>-improved.puml`), rendered to `<name>-improved.<fmt>.svg`. The
+original `<name>.<fmt>` is left untouched. Colour and presentation ride on the
+render step (external stylesheet for Mermaid, generated palette include for
+PlantUML/D2), never baked into the improved source.
+
+- **Mermaid** → colour NEVER lives in the `.mmd`. The improved `.mmd` carries no
+  `classDef` colour: nodes only carry `class <id> <role>` (subgraphs `class <id> frame`),
+  and the look arrives at render time from the generated stylesheet:
+  `mmdc -C <style>/palette.css -b white -i <name>-improved.mmd -o <name>-improved.mmd.svg`.
+  `palette.css` supplies every role's colour, so the source stays purely semantic. (One
+  narrow exception: pasting `palette.mmd`'s `classDef` block inline into the `.mmd` is ONLY
+  for GitHub-inline viewing, where you can't pass `-C`; it is not the improved deliverable.)
+  **Render with an explicit solid
   background** — `mmdc -b white` — because `mmdc`
   defaults to a *transparent* SVG background, which shows through as blank/checkered
   wherever the viewer's own background isn't white and reads as "half the image is
@@ -73,7 +81,131 @@ the coloured box+person-icon "actor-card", plain cards, cylinders, and nested
 that tempts you into a `.py` generator. If the current source is *plain* PlantUML
 `actor`s (stick figures, no box), rewriting it to C4-PlantUML — tagged from the
 shared `palette.c4.puml` — reaches the full house look with zero hand-crafting.
-Only escalate to a generator when no native construct gets there.
+Only escalate to a generator when no native construct gets there. Use the
+**vendored** C4 includes (`references/c4/` in the skill, `_style/c4/` in the repo)
+so the render is offline-capable; that chain needs `-DRELATIVE_INCLUDE=1` (see
+below).
+
+### C4-PlantUML worked example: local includes + the house palette
+
+Convert a plain-box PlantUML diagram to C4-PlantUML using the VENDORED local
+includes and the generated palette. Include `C4_Container.puml` FIRST (it defines
+the macros, shapes, layout, and `AddElementTag`), then `palette.c4.puml` AFTER (it
+supplies the house-colour tags):
+
+```
+@startuml
+!include c4/C4_Container.puml      ' vendored; render with -DRELATIVE_INCLUDE=1 for offline
+!include palette.c4.puml           ' generated house-colour tags (AddElementTag); include AFTER C4
+HIDE_STEREOTYPE()
+LAYOUT_LEFT_RIGHT()
+Person(researcher, "Researcher", $tags="actor")
+System_Boundary(infra, "Infrastructure") {
+  Container(host, "Git host", "platform", "builds + serves the site", $tags="system")
+  ContainerDb(schema, "Content schema", "typed contract", "what content conforms to", $tags="schema")
+}
+Rel(researcher, host, "authors via")
+@enduml
+```
+
+Render (needs Graphviz `dot` on PATH; PlantUML auto-detects it, so usually no env
+var; if it can't find `dot`, set `export GRAPHVIZ_DOT="$(command -v dot)"`):
+
+```
+java -jar plantuml.jar -DRELATIVE_INCLUDE=1 \
+  -Dplantuml.include.path=<dir with c4/ and palette.c4.puml> \
+  -tsvg <name>-improved.puml
+mv <name>-improved.svg <name>-improved.puml.svg   # keep the .puml infix (see below)
+```
+
+The improved render must keep the format infix: `<name>-improved.<fmt>.svg` (so
+one diagram's D2/Mermaid/PlantUML renders coexist and each records its tool).
+PlantUML's default output is `<name>-improved.svg` — it strips the `.puml` — so
+you must rename it to `<name>-improved.puml.svg` (the `mv` above). Mermaid keeps
+the infix if you pass `-o <name>-improved.mmd.svg`; D2 with
+`d2 <name>-improved.d2 <name>-improved.d2.svg`.
+
+How it fits together: `C4_Container.puml` gives the C4 macros/shapes/layout and
+defines `AddElementTag`; `palette.c4.puml` (included AFTER) calls `AddElementTag`
+to register the house-colour tags. `-DRELATIVE_INCLUDE=1` makes the vendored
+`C4_*.puml` include their siblings (`C4_Context.puml`, `C4.puml`) from the local
+directory instead of fetching them from GitHub; this is what makes the render
+offline-capable. Pass a `$tags` value on each element: the generated palette offers
+generic grouping slots (`cat1..catN`) and, where the project defines them, semantic
+roles (`svc`, `store`, `system`, …). Pick whichever encodes the story. Colour often
+reads best as a GROUPING signal rather than an element-type one: give a source and
+its target the SAME slot (`plan` and the admin system it uses both `cat1`) so colour
+tells the connection at a glance. Check the project's `roles.md` for what is defined.
+
+**Improvement checklist** (C4 or any format):
+
+- Keep the semantic source colour-free; presentation rides on the render step.
+- Write a SEPARATE `<name>-improved.<fmt>` source; never overwrite `<name>.<fmt>`.
+- Self-describing labels: C4 stereotype plus a one-line description in each node.
+- Let declaration order tell the story (e.g. lifecycle order) to steer layout.
+- Render with the external stylesheet (Mermaid `-C palette.css`) / the generated
+  palette include and `-DRELATIVE_INCLUDE=1` (PlantUML C4).
+- Every C4 element should carry a `$tags` role. The generated `palette.c4.puml`
+  also retags the C4 stock defaults to house colours, so an element you forget to
+  tag comes out house-neutral instead of C4-blue; that is a safety net, not the
+  target. Tagging is the floor.
+- Reorder declarations to the reading axis and prune non-load-bearing edges to
+  keep the layout clean (see "Declaration order is layout order" below).
+- Never delete or rename the user's files; advise them (see below).
+
+### Declaration order is layout order; and untangling line overlap
+
+Two levers decide whether a native render reads cleanly or as a hairball: the
+ORDER you declare nodes in, and how many edges you ask the engine to route. Both
+are worked before reaching for a generator.
+
+**Declaration order IS layout order.** For every auto-layout engine here (Graphviz
+`dot` under PlantUML, Mermaid `dagre`/`elk`, D2 `dagre`/`elk`) the order you
+declare nodes is the primary hint the engine ranks them by. So:
+
+- Declare nodes along the reading axis in the STORY's order: a left-to-right
+  lifecycle declares `plan, collect, process, deposit, analyse` in that order, and
+  the engine lays them out along that axis instead of guessing.
+- Declare peers/rows consecutively so the engine aligns them on one rank; a node
+  declared far from its row drifts to a different rank and bends its edges.
+- Declare the two sides of a cross-cut (the sources and their targets) in ALIGNED
+  order, so each source sits at its target's height and the connecting edges run
+  level instead of crossing.
+- For C4, match the axis explicitly: `LAYOUT_LEFT_RIGHT()` for a left-right story,
+  `LAYOUT_TOP_DOWN()` for a top-down one, so the C4 layout agrees with your order.
+
+**EDGE order is the other half — and it is easy to miss.** In Mermaid/`dagre` (and
+D2) the order you declare EDGES seeds each rank's top-to-bottom node order through
+the crossing-minimisation pass. Correct node order with scrambled edge order still
+comes out wrong: a node declared first can sink to the bottom of its column if its
+edge is listed late. Declare edges in the SAME reading order as the nodes — walk the
+story along the axis, source by source, rather than grouping edges by shared
+endpoint. PlantUML/Graphviz is far less sensitive to edge order, so a `.puml` can
+look right while the sibling `.mmd` comes out flipped — always re-check the Mermaid
+render after reordering.
+
+**Line overlap: a remedy ladder, cheapest first.** When edges cross or overlap,
+work these in order rather than jumping to a hand-crafted generator:
+
+- **(a) Prune non-load-bearing edges** (the biggest lever). An edge implied by
+  others, or not part of the point, is removed; fewer edges is fewer crossings.
+- **(b) Switch the layout engine.** Mermaid: render with **elk** via a CONFIG
+  file, keeping the `.mmd` clean (NO `%%{init}%%` directive in the source; and the
+  diagram-type keyword such as `flowchart LR` must be the FIRST line — strict Mermaid
+  rejects `%%` comments before it, so any provenance header goes AFTER that line): add
+  `references/mermaid-elk.json` = `{"flowchart":{"defaultRenderer":"elk"}}` and
+  render `mmdc -c <style>/mermaid-elk.json -C <style>/palette.css -b white -i
+  <name>-improved.mmd -o <name>-improved.mmd.svg`. D2: try `--layout elk`. elk
+  routes multi-edge/nested graphs with fewer crossings than dagre.
+- **(c) Reorder declarations, group with subgraphs, or pin position** (D2 `near`)
+  so related nodes sit together and edges shorten.
+- **(d) Still a hairball?** Raise altitude (fewer nodes, collapse detail) or add
+  containers to absorb edges into boundaries. Only after this does a generator earn
+  its place.
+
+**Iterate:** render → look → prune/reorder/switch-engine → re-render. Matching a
+hand-tuned reference usually takes a couple of these passes, not one shot; do not
+expect the first native render to land it.
 
 **Read the committed SVG too, not just the source.** If a rendered SVG sits beside
 the source (`model.puml` + `model.puml.svg`, or `model.mmd` + `model.mmd.svg`),
@@ -91,6 +223,13 @@ SVG and ask whether it's good enough or they want a presentation render; don't
 auto-escalate (the presentation SVG costs a second, derived artifact to maintain).
 Escalate to a **presentation render** (crafted SVG / generator) only when the
 native theme/layout genuinely can't reach the target and the user opts in.
+
+**Never delete or rename the user's files.** The skill produces
+`<name>-improved.<fmt>.svg` and leaves the original `<name>.<fmt>` and its SVG in
+place. Do not treat `<name>.<fmt>.svg` as scratch to remove, and do not rename
+outputs. Instead ADVISE the user: "If you're happy with the improved render,
+rename `<name>-improved.<fmt>.svg` to your ship name (e.g. `<slot>.svg`) and delete
+the original yourself; that step is manual and yours."
 
 **Always do the format-improved render first — even when a `presentation.py` /
 crafted SVG already exists** (a diagram you're returning to, or one handed to you
@@ -261,12 +400,13 @@ domains onto generic category slots**.
 
 - **`references/palette.{d2,mmd,css,puml,c4.puml}`** — one palette per format,
   all generated from `tokens.json` by `build-style.py`, so every native render pulls
-  the same colours. D2: `...@palette` + `{ class: cat1 }`. Mermaid: paste
-  `palette.mmd`'s `classDef`s, **or** keep the `.mmd` colour-free and render with
-  `mmdc -C palette.css` (nodes carry only `class n cat1`; `palette.css` supplies the
-  look, incl. `frame` / `frame-catN` for subgraphs). PlantUML: `!include palette.puml`
-  + `<<cat1>>`, or C4-PlantUML `palette.c4.puml` + `$tags="cat1"`. Re-run
-  `build-style.py` after editing tokens so no side drifts.
+  the same colours. D2: `...@palette` + `{ class: cat1 }`. Mermaid: keep the `.mmd`
+  colour-free and render with `mmdc -C palette.css` (nodes carry only `class n cat1`;
+  `palette.css` supplies the look, incl. `frame` for subgraphs) — inline
+  `palette.mmd` `classDef`s are only for GitHub-inline viewing where `-C` can't be
+  passed. PlantUML: `!include palette.puml` + `<<cat1>>`, or C4-PlantUML
+  `palette.c4.puml` + `$tags="cat1"`. Re-run `build-style.py` after editing tokens
+  so no side drifts.
 
 (This is separate from `style.d2`'s role classes — `svc`/`actor`/`store`/… —
 which stay for role-typed diagrams; `palette.d2` is the colour-by-arbitrary-domain
