@@ -417,6 +417,39 @@ carries **no** styling — meaning only; presentation layers on top. Colour =
 domain (mapped to a slot), shape = kind, dashed = external: stated once, applied
 everywhere.
 
+## Use the shared glyph library — don't hand-roll shapes
+
+`references/glyphs.py` is the ONE source for the crafted house look: import it
+(`from glyphs import ...`) and build the SVG from its primitives, so every
+generator draws the identical person, card, cylinder, hexagon and cloud, and they
+all move together when the look changes. A generator that hand-defines its own
+`<path>` cloud or `<polygon>` hexagon is how presentations drift apart — the same
+mistake as hard-coding hex. The primitives:
+
+- **`card(nid, x, y, w, h, d, title, type_, desc, datastore=, actor=, dash=, stack=)`**
+  — the large LEFT-aligned house card; `datastore` → cylinder, `actor` → prepend the
+  small filled person icon, `stack` → offset copies behind (the artefact/`multiple`
+  role), `dash` → external.
+- **`c4_box(nid, cx, cy, w, h, d, title, type_, desc, datastore=, stack=)`** — the
+  compact CENTRE-aligned C4 card, positioned by centre; same `datastore`/`stack`.
+  Use this for tight C4-container diagrams; use `card` for the roomier style.
+- **`hexagon(nid, x, y, w, h, d, ...)`** — the `process` role. **`cloud(nid, x, y, w, h, d, ...)`**
+  — the `infra` role (scales to width). **`actor_node(nid, cx, cy, d, name, desc)`**
+  — a standalone OUTLINE actor (no box), for external human roles.
+- **`edge(tag, pts, labels=, lx=, ly=, role=)`** — orthogonal polyline; pass an edge
+  `role` (`human`/`publish`/`serve`/`flow`/…) and it takes that role's colour, width,
+  dash and label colour from tokens. **`markers([roles])`** emits the matching
+  arrowhead markers for the `<defs>` (fixed size — they don't balloon on bold edges).
+- **`boundary`/`legend`/`person`/`text`** — `[system]` boundary, auto-sized legend,
+  the filled person icon, and the haloed text primitive.
+
+`d` is a resolved style dict `{fill, stroke, text}` — pass `TOK["roles"][name]` for a
+role-typed diagram or `TOK["categories"][catN]` for a domain-grouping one; glyphs
+never maps domains itself. Shape = kind (hexagon = process, cloud = infra, cylinder =
+store, stack = multiple); colour = the role/domain; edge colour = the edge role. If a
+shape you need is genuinely missing, ADD it to `glyphs.py` (and re-vendor) rather than
+inlining it in one generator.
+
 ## The iteration loop — craft by eye
 
 Hand-authored SVG has no layout safety net: unlike D2, nothing guarantees boxes

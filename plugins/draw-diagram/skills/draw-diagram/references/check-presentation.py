@@ -146,6 +146,10 @@ def _resolve_puml(path, seen=None, depth=0):
 def canonical_from_plantuml(path):
     raw = _resolve_puml(path)
     raw = re.sub(r"/'.*?'/", " ", raw, flags=re.S)          # block comments
+    raw = re.sub(r"(?m)^\s*'.*$", " ", raw)                 # full-line ' comments
+                                                            # (else example macros in
+                                                            # included/vendored C4 files
+                                                            # register as phantom nodes)
     nodes, edges = set(), Counter()
     _c4_sets(raw, nodes, edges)                              # C4 macros (if any)
     for ln in raw.splitlines():
